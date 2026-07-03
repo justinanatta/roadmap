@@ -12,7 +12,7 @@ Ask for anything not already provided: client name, which quarter the board cove
 ## Steps
 
 1. Copy `template.html` to the target repo as `index.html` (create the repo and a `draft` branch if asked).
-2. Work through every `SETUP:` comment in the file: client name in all six places, favicon emoji, sprint bands (continuing numbers), the 16 week labels, the JS dates (`quarterStart`, `quarterDays`, `ganttStart`, `ganttEnd`), Jira org/prefix, milestones.
+2. Work through every `SETUP:` comment in the file: client name in all six places, favicon emoji, sprint bands (continuing numbers), the 16 week labels, the two JS dates (`ganttStart`, `ganttEnd`), Jira org/prefix, milestones.
 3. The standard grid is 16 columns (2 carryover + 13 quarter weeks + 1 horizon — SPEC §2). If a bounded engagement needs a different count, change `repeat(16, 1fr)` in `.row-track`, every 16-cell filler run, sprint bands, and week labels **together** — they must always agree.
 4. Replace the exemplar lanes/rows with the client's real lanes and work items, reusing the template's patterns (done epic, in-flight, crossing, NEW sub-item, SPIKE, TEST, CONV, BUG, proposed, deferred). Keep lane color **class names** as-is; only the visible names change. Keep the legend in sync with the lanes actually used.
 5. Write `roadmap.config.json` from `roadmap.config.example.json` with the real values.

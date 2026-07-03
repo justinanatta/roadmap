@@ -205,10 +205,6 @@
     font-weight: 700;
     letter-spacing: 0.06em;
   }
-  .today-flag-day {
-    font-weight: 500;
-    opacity: 0.75;
-  }
 
   details.group { display: block; }
   summary.row {
@@ -815,7 +811,6 @@
         <div class="today-flag">
           <span>TODAY</span>
           <span class="today-flag-date" id="todayDate">Jul 3</span>
-          <span class="today-flag-day">Day <span id="dayNum">3</span>/92</span>
         </div>
       </div>
 
@@ -1316,8 +1311,6 @@
 
 <script>
   (function() {
-    var quarterStart = new Date('2026-07-01T00:00:00'); // first calendar day of the quarter (drives the Day N counter)
-    var quarterDays = 92;                                    // days in the quarter (92 for Q3)
     var ganttStart = new Date('2026-06-15T00:00:00'); // Monday of the FIRST column (first carryover week)
     var ganttEnd = new Date('2026-10-05T00:00:00'); // end of the LAST column (Q4 horizon week)
 
@@ -1325,10 +1318,6 @@
 
     function update() {
       var today = new Date();
-      var dayOfQuarter = Math.max(1, Math.min(quarterDays, Math.floor((today - quarterStart) / 86400000) + 1));
-
-      var dayNum = document.getElementById('dayNum');
-      if (dayNum) dayNum.textContent = dayOfQuarter;
       var todayDate = document.getElementById('todayDate');
       if (todayDate) todayDate.textContent = MONTHS[today.getMonth()] + ' ' + today.getDate();
 
