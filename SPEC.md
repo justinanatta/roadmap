@@ -1,0 +1,128 @@
+# Client Roadmap Gantt — Locked Encoding Spec
+
+This document is the source of truth for the roadmap HTML format used across Anatta client engagements (reference implementation: the Llama Naturals roadmap). `template.html` in this repo is a sanitized, working skeleton of the same file. **The encoding below is locked** — every roadmap must follow it exactly so that clients, PMs, and automation (Claude skills) can all read and edit any client's file the same way.
+
+The file is **hand-authored static HTML** — no build step, no framework, no data file. All content lives in the markup; all styling lives in the single `<style>` block; the only JS positions the today line and wires the expand/collapse + column-resizer controls. Deploy anywhere that serves static files (we use Vercel).
+
+## 1. Page anatomy (top to bottom)
+
+| Section | Markup | Notes |
+|---|---|---|
+| Topbar | `.topbar` | Eyebrow (client name), Expand/Collapse all buttons, `DRAFT vX.X · Day N/90` meta |
+| Title block | `.title-block` | `h1.title` + one-sentence `.subtitle` |
+| Gantt | `.gantt-wrap > .gantt` | Today line, column resizer, then the rows below |
+| Sprint band row | `.row.sprint-row` | One `.sprint-band` per sprint, `Sprint N · Mon D – Mon D` |
+| Week label row | `.row.week-row` | One `.week-label` per column (Mondays) |
+| Milestone row | `.row.milestone-row` | Release diamonds + contract-end marker |
+| Swimlane groups | `details.group` | One per lane; `summary` = lane header row, children = work items |
+| Legend note + legend | `.legend-note`, `.legend` | Keep in sync with the lanes/pills actually used |
+| Footer | `footer` | `Working draft. vX.X · Client × Anatta · …` |
+
+## 2. Timeline geometry (the load-bearing rule)
+
+The track is a CSS grid: `grid-template-columns: repeat(11, 1fr)` — **10 week columns + 1 contract-end column**. Everything is placed with `grid-column: {startCol} / {endCol}`, and **endCol is exclusive** (a bar spanning weeks 1–2 is `grid-column: 1 / 3`).
+
+- **1 column = 1 week; 1 sprint = 2 weeks = 2 columns.**
+- Column 1 is the engagement's first week; the last column is reserved for the Contract End band.
+- Weeks already elapsed when the roadmap was first published carry the `prior` class on their cells, week labels, and sprint bands (darker tint).
+- Every `.row-track` begins with the same run of 11 filler `<div class="cell">` divs (with `prior` on the elapsed ones) — copy the run exactly when adding a row.
+- A different engagement length means changing `repeat(11, 1fr)` in `.row-track`, every cell run, the sprint bands, and the week labels together. Do it once at setup, never mid-engagement.
+
+**Today line:** positioned by JS from three dates at the top of the `<script>` block — `noticeStart` (engagement day 1, drives the Day N/90 counter), `ganttStart` (Monday of the first week column), `ganttEnd` (end of the last column). Set them at setup; the line then tracks in real time. Bars that straddle the line get `crosses` + an inline `--past: N%` (percentage of the bar already elapsed — recompute it whenever you move/extend a crossing bar).
+
+## 3. Bar encoding
+
+Every bar is:
+
+```html
+<div class="bar {lane} {state}" style="grid-column: {start} / {end};" title="{safe context}">
+  <span class="bar-type">{PILL}</span><span class="bar-label">{label}</span>
+</div>
+```
+
+Epic bars on lane headers use bare text + a trailing `<span class="bar-status">Sprint N–M</span>` instead of `bar-label`.
+
+**Lane color classes** (keep the class names; your visible lane names are free):
+
+| Class | Color | Hex |
+|---|---|---|
+| `cart` | dark teal-blue | `#2C5266` |
+| `plp` | dark amber | `#7A5520` |
+| `experiments` | dark bluish green | `#1F5E45` |
+| `implementations` | dark plum | `#614258` |
+| `compliance` | dark slate blue | `#3D5F73` |
+| `promotions` | dark teal | `#1F5D5D` |
+
+The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families, luminance dropped for WCAG AA+ white-text contrast. Don't substitute colors. Signal red (`--signal`, `#8B3D14`) is reserved for the Contract End marker and proposed-bar accents — never for lanes.
+
+**State classes** (added after the lane class):
+
+| State | Class | Rendering | Meaning |
+|---|---|---|---|
+| In-flight | *(none)* | solid lane color | scheduled and being worked |
+| Shipped | `done` | gray, 70% opacity | done — set label/status to "Shipped" + date |
+| Proposed | `proposed` | dashed red outline, hatched | surfaced, not yet scheduled (no lane class needed) |
+| Deferred | `deferred` | dashed gray outline, strikethrough | parked; kept visible for the record |
+| Crossing today | `crosses` + `--past: N%` | left portion darkened | in-flight bar straddling the today line |
+| Epic | `epic` | taller, bolder | lane-header summary bar (combine with lane/state) |
+
+**Task-type pills** (`bar-type` span, exactly one per bar):
+
+| Pill | Meaning |
+|---|---|
+| `IMPL` | direct implementation |
+| `TEST` | A/B test / experiment |
+| `BUG` | defect |
+| `SPIKE` | investigation |
+| `CONV` | conversation / decision needed |
+
+## 4. Row encoding
+
+```html
+<div class="row">
+  <div class="row-label indented">
+    <span class="label-top">
+      <a href="https://YOURORG.atlassian.net/browse/PROJ-NN" target="_blank" rel="noopener">Item Title</a>
+      <a class="id" href="…same…" target="_blank" rel="noopener">PROJ-NN</a>
+    </span>
+    <span class="row-meta">status note · context</span>
+  </div>
+  <div class="row-track"> {11 cells} {bar} </div>
+</div>
+```
+
+- `indented` = normal work item; `sub-indented` = child of another item (renders a `↳`).
+- Unticketed items: plain `<span>` title + `<span class="id">NEW</span>` instead of Jira links. Give them a real ticket link once filed.
+- `row-meta` is a short italic status line — neutral, outcome-focused (see guardrails). Hidden on mobile, so never put load-bearing info only there.
+- Milestones: `.milestone` with a `.diamond` — solid green `release` = shipped, outlined `release projected` (+ `projected` on the wrapper, `~` before the date) = projected, big red `renewal` = contract end.
+
+## 5. Writing rules
+
+- **Full words, no shortforms** — "Sprint 5", never "S5"; "Investigation", never "Invest.".
+- **No named individuals anywhere** — bars, labels, row-metas, tooltips. "Pending client sign-off", never "Awaiting Brad".
+- Bar `title` attributes (tooltips) are client-visible: same rules as labels.
+- One font family, tabular numerals — already in the CSS; don't add fonts or touch styles for content edits.
+
+## 6. Information-exposure guardrails (CRITICAL)
+
+The roadmap is a **client-facing artifact**. Internal talk must never reach it. **NEVER include:**
+
+- Commentary about the client or their stakeholders as people — responsiveness, mood, competence, "goes quiet then complains", being a bottleneck.
+- Team sentiment, venting, frustration, jokes, off-hand remarks.
+- Internal economics: hours, budget, margin, rates, capacity, who's overloaded.
+- Renewal odds, account risk, sales/upsell strategy, any internal read on the relationship.
+- Blame, fault, or speculation about causes involving named people.
+- Named individuals anywhere (restated from §5).
+- Security/credential details, internal URLs, tokens, infra specifics.
+- Anything a reasonable client would be unhappy to see written about their account.
+
+**DO** describe only the work — shipped, slipped, re-scoped, added, deferred — in neutral, professional, outcome-focused language. A blocked item becomes a status ("Pending client sign-off"), never a story about a person.
+
+**Fail closed:** if it's ambiguous whether something is client-safe, leave it out. Losing a minor update is always cheaper than leaking internal talk.
+
+## 7. Update discipline
+
+- Edits are **surgical**: touch only the bars/rows/metas the source (meeting, ticket) justifies. Never restructure the page, rename lanes, or change CSS during a content update.
+- Publishing flow: edit on a **`draft` branch** → review the rendered diff → merge to `main` (the client-facing deploy). Nothing goes straight to `main`.
+- Every update ends with a plain-English changelog grouped **Shipped / Slipped / Scope / New / Deferred** — that's what the reviewer reads at merge time.
+- Version the artifact in the topbar meta and footer (`DRAFT v1.0` → bump on meaningful revisions).

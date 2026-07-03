@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- SETUP: replace "Sample Client" everywhere (title, meta, eyebrow, h1, footer) with the client's name -->
+<title>Sample Client Roadmap</title>
+<meta name="description" content="Sample Client roadmap gantt. Collapsible groups, in-flight, proposed, deferred work, milestones, and task-type pills.">
+<!-- SETUP: pick a client emoji for the favicon (URL-encoded below; 🗺 = %F0%9F%97%BA) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%97%BA%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --ground: #F4F6F8;
+    --ground-elev: #E9ECEF;
+    --ink: #1A1F1A;
+    --ink-mid: #4D5249;
+    --ink-mute: #8B8D7E;
+    --rule: #C4C0B0;
+    --rule-strong: #1A1F1A;
+    --signal: #8B3D14;        /* Deep vermillion */
+    --counter: #1F5E45;       /* Deep bluish green */
+    --today: #64748B;         /* Soft slate, Asana-style */
+
+    /* Dark muted Okabe-Ito: same hue families for colorblind distinguishability, darker luminance for white-text contrast (WCAG AA+) */
+    --cart: #2C5266;          /* Dark teal-blue */
+    --plp: #7A5520;           /* Dark amber */
+    --experiments: #1F5E45;   /* Dark bluish green */
+    --implementations: #614258; /* Dark plum */
+    --compliance: #3D5F73;    /* Dark slate blue */
+    --promotions: #1F5D5D;    /* Dark teal */
+
+    --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { font-family: var(--font); }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 48px 56px;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .page { max-width: 1720px; margin: 0 auto; }
+
+  .topbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+  }
+  .topbar-meta {
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .topbar-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-left: auto;
+  }
+  .toggle-btn {
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-mid);
+    padding: 4px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 2px;
+    font-family: var(--font);
+  }
+  .toggle-btn:hover {
+    background: var(--ground-elev);
+    color: var(--ink);
+  }
+
+  .title-block { margin-bottom: 40px; }
+  h1.title {
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.1;
+    letter-spacing: -0.024em;
+    font-weight: 500;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  h1.title em {
+    color: var(--signal);
+    font-style: normal;
+    font-weight: 500;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--ink-mid);
+    max-width: 76ch;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .gantt-wrap {
+    overflow-x: auto;
+    border-top: 1.5px solid var(--rule-strong);
+    border-bottom: 1.5px solid var(--rule-strong);
+    background: var(--ground);
+    margin-top: 44px;
+  }
+  .gantt {
+    --label-col: 280px;
+    min-width: 1200px;
+    width: 100%;
+    position: relative;
+  }
+
+  .col-resizer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--label-col);
+    width: 9px;
+    margin-left: -4px;
+    cursor: col-resize;
+    z-index: 20;
+    background: transparent;
+    touch-action: none;
+  }
+  .col-resizer::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 36px;
+    background: var(--rule);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .col-resizer:hover::after,
+  .col-resizer.dragging::after {
+    opacity: 1;
+    background: var(--ink-mid);
+  }
+
+  /* TODAY LINE */
+  .today-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--today);
+    z-index: 10;
+    pointer-events: none;
+    display: none;
+    opacity: 1;
+  }
+  .today-flag {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--today);
+    color: white;
+    padding: 4px 9px 3px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-weight: 600;
+    border-radius: 2px;
+  }
+  .today-flag::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--today);
+  }
+  .today-flag-date {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .today-flag-day {
+    font-weight: 500;
+    opacity: 0.75;
+  }
+
+  details.group { display: block; }
+  summary.row {
+    list-style: none;
+    cursor: pointer;
+  }
+  summary.row::-webkit-details-marker { display: none; }
+  summary.row::marker { display: none; }
+  summary.row:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
+  }
+  details > summary .row-label::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid var(--ink-mid);
+    margin-right: 10px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+    transform-origin: 50% 30%;
+  }
+  details:not([open]) > summary .row-label::before {
+    transform: rotate(-90deg);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: var(--label-col, 280px) 1fr;
+  }
+  .row-label {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--ink);
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--ground);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1.3;
+  }
+  .row-label .label-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+  }
+  .row-label .label-top > a,
+  .row-label .label-top > span:not(.id) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .row-label .row-meta {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+  }
+  .row-label.indented { padding-left: 32px; }
+  .row-label.sub-indented { padding-left: 48px; font-size: 12px; color: var(--ink-mid); }
+  .row-label.sub-indented .label-top::before {
+    content: '↳';
+    color: var(--ink-mute);
+    margin-right: 4px;
+  }
+
+  /* Link styling for clickable row labels */
+  .row-label a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .row-label a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--ink-mute);
+    text-underline-offset: 3px;
+  }
+  .row-label a:focus-visible {
+    outline: 1.5px solid var(--ink);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  .row-label .id,
+  .row-label a.id {
+    font-size: 11px;
+    color: var(--ink-mute);
+    white-space: nowrap;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    margin-left: auto;
+  }
+  .row-label a.id:hover {
+    color: var(--ink);
+  }
+
+  .row-track {
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    border-bottom: 1px solid var(--rule);
+    background: var(--ground);
+    position: relative;
+    min-height: 48px;
+  }
+  .cell {
+    border-right: 1px solid var(--rule);
+    grid-row: 1;
+  }
+  .cell:last-child { border-right: none; }
+  .cell.prior { background: rgba(74, 80, 75, 0.11); }
+
+  /* Reset to single-row flex for special header rows */
+  .sprint-row .row-label,
+  .week-row .row-label,
+  .milestone-row .row-label,
+  .group-row .row-label {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* SPRINT BAND ROW */
+  .sprint-row .row-label {
+    background: var(--ground-elev);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mid);
+    font-weight: 600;
+  }
+  .sprint-row .row-track {
+    background: var(--ground-elev);
+    min-height: 32px;
+  }
+  .sprint-band {
+    grid-row: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-mid);
+    border-right: 1px solid var(--rule);
+    font-weight: 600;
+  }
+  .sprint-band.prior {
+    background: rgba(74, 80, 75, 0.16);
+    color: var(--ink-mid);
+  }
+  .sprint-band.tint { background: rgba(74, 80, 75, 0.08); }
+  .sprint-band.tint-alt { background: rgba(74, 80, 75, 0.14); }
+  .sprint-band.renewal-band {
+    background: rgba(122, 41, 36, 0.12);
+    color: var(--signal);
+    font-weight: 700;
+    border-right: none;
+  }
+
+  /* WEEK LABEL ROW */
+  .week-row .row-label {
+    background: var(--ground);
+    border-bottom: 1.5px solid var(--ink);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-mid);
+    font-weight: 600;
+  }
+  .week-row .row-track {
+    background: var(--ground);
+    border-bottom: 1.5px solid var(--ink);
+    min-height: 32px;
+  }
+  .week-label {
+    grid-row: 1;
+    font-size: 10px;
+    color: var(--ink-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--rule);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+  .week-label.prior {
+    color: var(--ink-mid);
+    background: rgba(74, 80, 75, 0.11);
+  }
+  .week-label:last-child { border-right: none; }
+
+  /* MILESTONE ROW */
+  .milestone-row .row-label {
+    background: var(--ground);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mid);
+    font-weight: 600;
+  }
+  .milestone-row .row-track {
+    min-height: 52px;
+    align-items: center;
+  }
+  .milestone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 4px;
+  }
+  .diamond {
+    width: 10px;
+    height: 10px;
+    background: var(--ink);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .diamond.release { background: var(--counter); }
+  .diamond.release.projected {
+    background: var(--ground);
+    border: 1.5px solid var(--counter);
+  }
+  .diamond.holiday { background: var(--ink-mute); }
+  .diamond.renewal {
+    background: var(--signal);
+    width: 14px;
+    height: 14px;
+  }
+  .milestone-label {
+    font-size: 9px;
+    color: var(--ink-mid);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+  .milestone.projected .milestone-label {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .milestone.renewal .milestone-label {
+    color: var(--signal);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  /* GROUP HEADER ROW */
+  .group-row .row-label {
+    background: var(--ground-elev);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    font-weight: 700;
+    padding: 14px 16px 12px;
+  }
+  .group-row .row-track {
+    background: var(--ground-elev);
+    min-height: 44px;
+  }
+  .group-row .row-track,
+  .group-row .row-label {
+    border-bottom: 1px solid var(--rule);
+  }
+  .group-id,
+  a.group-id {
+    font-size: 10px;
+    color: var(--ink-mute);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  a.group-id:hover { color: var(--ink); }
+  .group-id.muted { color: var(--ink-mute); font-style: italic; }
+
+  /* BARS */
+  .bar {
+    grid-row: 1;
+    align-self: center;
+    margin: 6px 4px;
+    height: 24px;
+    padding: 0 10px 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: white;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border-radius: 2px;
+    min-width: 0;
+    font-weight: 500;
+    position: relative;
+  }
+  .bar-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+  }
+  .bar.cart { background-color: var(--cart); }
+  .bar.plp { background-color: var(--plp); }
+  .bar.experiments { background-color: var(--experiments); }
+  .bar.implementations { background-color: var(--implementations); }
+  .bar.compliance { background-color: var(--compliance); }
+  .bar.promotions { background-color: var(--promotions); }
+  .bar.proposed {
+    background-color: var(--ground);
+    color: var(--signal);
+    border: 1.5px dashed var(--signal);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 6px,
+      rgba(122, 41, 36, 0.08) 6px,
+      rgba(122, 41, 36, 0.08) 8px
+    );
+    font-weight: 600;
+  }
+  .bar.deferred {
+    background-color: transparent;
+    color: var(--ink-mute);
+    border: 1px dashed var(--ink-mute);
+    font-weight: 500;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--ink-mute);
+    opacity: 0.75;
+  }
+  .bar.done {
+    background-color: var(--ink-mute);
+    opacity: 0.7;
+  }
+  .bar.epic {
+    min-height: 30px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .bar.crosses {
+    background-image: linear-gradient(
+      to right,
+      rgba(0,0,0,0.32) 0%,
+      rgba(0,0,0,0.32) var(--past, 50%),
+      transparent var(--past, 50%),
+      transparent 100%
+    );
+  }
+  .bar.proposed.crosses {
+    background-image:
+      linear-gradient(
+        to right,
+        rgba(122, 41, 36, 0.18) 0%,
+        rgba(122, 41, 36, 0.18) var(--past, 50%),
+        transparent var(--past, 50%),
+        transparent 100%
+      ),
+      repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 6px,
+        rgba(122, 41, 36, 0.08) 6px,
+        rgba(122, 41, 36, 0.08) 8px
+      );
+  }
+  .bar-status {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-left: auto;
+    padding-left: 6px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* TASK-TYPE PILL */
+  .bar-type {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 2.5px 5px;
+    background: rgba(255, 255, 255, 0.24);
+    color: white;
+    border-radius: 2px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .bar.proposed .bar-type {
+    background: rgba(122, 41, 36, 0.16);
+    color: var(--signal);
+  }
+  .bar.deferred .bar-type {
+    background: transparent;
+    color: var(--ink-mute);
+    border: 1px solid var(--ink-mute);
+    padding: 1.5px 4px;
+  }
+  .bar.done .bar-type {
+    background: rgba(255, 255, 255, 0.32);
+    color: white;
+  }
+  .bar.epic .bar-type {
+    background: rgba(255, 255, 255, 0.3);
+    font-size: 9px;
+  }
+
+  /* LEGEND */
+  .legend-note {
+    margin-top: 28px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+    max-width: 760px;
+  }
+  .legend {
+    margin-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 28px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+  .legend-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-right: 18px;
+  }
+  .legend-group:not(:last-child) {
+    border-right: 1px solid var(--rule);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch {
+    width: 18px;
+    height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .swatch.cart { background-color: var(--cart); }
+  .swatch.plp { background-color: var(--plp); }
+  .swatch.experiments { background-color: var(--experiments); }
+  .swatch.implementations { background-color: var(--implementations); }
+  .swatch.compliance { background-color: var(--compliance); }
+  .swatch.promotions { background-color: var(--promotions); }
+  .swatch.proposed {
+    background-color: var(--ground);
+    border: 1.5px dashed var(--signal);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 4px,
+      rgba(122, 41, 36, 0.1) 4px,
+      rgba(122, 41, 36, 0.1) 6px
+    );
+  }
+  .swatch.deferred {
+    background-color: transparent;
+    border: 1px dashed var(--ink-mute);
+  }
+  .swatch.done { background: var(--ink-mute); opacity: 0.7; }
+  .swatch.crosses {
+    background-image: linear-gradient(
+      to right,
+      rgba(0,0,0,0.45) 0 50%,
+      transparent 50% 100%
+    ), linear-gradient(var(--ink-mid), var(--ink-mid));
+  }
+  .legend-diamond {
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .legend-diamond.release { background: var(--counter); }
+  .legend-diamond.projected {
+    background: var(--ground);
+    border: 1.5px solid var(--counter);
+  }
+  .legend-diamond.holiday { background: var(--ink-mute); }
+  .legend-diamond.renewal { background: var(--signal); width: 12px; height: 12px; }
+  .legend-today {
+    width: 2px;
+    height: 14px;
+    background: var(--today);
+    opacity: 1;
+    flex-shrink: 0;
+  }
+  .legend-pill {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 2.5px 5px;
+    background: var(--ink-mid);
+    color: white;
+    border-radius: 2px;
+    text-transform: uppercase;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    body { padding: 16px 12px 40px; font-size: 13px; }
+    .topbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+    .topbar-actions { margin-left: 0; }
+    .topbar-meta { order: 3; }
+    .title-block { margin-bottom: 24px; }
+    h1.title { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .subtitle { font-size: 12px; line-height: 1.4; }
+    .gantt-wrap { margin-top: 24px; }
+    .gantt { --label-col: 160px; min-width: 900px; }
+    .row-label { padding: 6px 8px; font-size: 11px; }
+    .row-label.indented { padding-left: 18px; }
+    .row-label.sub-indented { padding-left: 28px; font-size: 11px; }
+    .row-label .row-meta { display: none; }
+    .row-label .label-top { gap: 6px; }
+    .row-label .id, .row-label a.id { font-size: 9px; padding: 1px 4px; }
+    .bar { font-size: 10px; min-height: 22px; }
+    .bar-type { font-size: 8px; padding: 1px 4px; }
+    .bar-label { font-size: 10px; }
+    .sprint-band { font-size: 9px; padding: 4px 6px; }
+    .col-resizer { width: 14px; margin-left: -7px; }
+    .col-resizer::after { opacity: 1; background: var(--rule); height: 24px; }
+    .legend { flex-direction: column; gap: 8px; padding: 16px 12px; }
+    .legend-group { border-right: none !important; padding-right: 0; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+    .legend-group:last-child { border-bottom: none; padding-bottom: 0; }
+    .today-flag { font-size: 9px; padding: 3px 6px 2px; top: -22px; }
+    footer { font-size: 10px; margin-top: 32px; padding-top: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="eyebrow">Sample Client Roadmap</div>
+    <div class="topbar-actions">
+      <button class="toggle-btn" id="expandAll" type="button">Expand all</button>
+      <button class="toggle-btn" id="collapseAll" type="button">Collapse all</button>
+    </div>
+    <div class="topbar-meta">DRAFT v1.0 · <span id="dayMeta">Day 1 / 90</span></div>
+  </div>
+
+  <div class="title-block">
+    <h1 class="title">Sample Client Optimization Roadmap</h1>
+    <p class="subtitle">In-flight work, proposed tests, shipped releases, and milestones across the Sample Client engagement.</p>
+  </div>
+
+  <div class="gantt-wrap">
+    <div class="gantt">
+
+      <div class="today-line" id="todayLine">
+        <div class="today-flag">
+          <span>TODAY</span>
+          <span class="today-flag-date" id="todayDate">Jan 1</span>
+          <span class="today-flag-day">Day <span id="dayNum">1</span>/90</span>
+        </div>
+      </div>
+
+      <div class="col-resizer" id="colResizer" title="Drag to resize label column"></div>
+
+      <!-- ============================================================
+           TIMELINE GEOMETRY — the one thing everything else hangs on.
+           The track is an 11-column CSS grid: 10 week columns + 1
+           contract-end column. Every bar and milestone is placed with
+           grid-column: {startCol} / {endCol} (endCol is EXCLUSIVE).
+           One sprint = 2 weeks = 2 columns. Weeks already elapsed at
+           launch get the `prior` class (darker). If your engagement
+           has a different week count, change repeat(11, 1fr) in the
+           CSS (.row-track) AND every cell row below to match.
+           ============================================================ -->
+
+      <!-- Sprint band row — SETUP: real sprint numbers + date ranges -->
+      <div class="row sprint-row">
+        <div class="row-label">Sprint</div>
+        <div class="row-track">
+          <div class="sprint-band prior" style="grid-column: 1 / 3;">Sprint 1 · Jan 5 – Jan 16</div>
+          <div class="sprint-band tint" style="grid-column: 3 / 5;">Sprint 2 · Jan 19 – Jan 30</div>
+          <div class="sprint-band tint-alt" style="grid-column: 5 / 7;">Sprint 3 · Feb 2 – Feb 13</div>
+          <div class="sprint-band tint" style="grid-column: 7 / 9;">Sprint 4 · Feb 16 – Feb 27</div>
+          <div class="sprint-band tint-alt" style="grid-column: 9 / 11;">Sprint 5 · Mar 2 – Mar 13</div>
+          <div class="sprint-band renewal-band" style="grid-column: 11 / 12;">Contract End</div>
+        </div>
+      </div>
+
+      <!-- Week labels — SETUP: one label per column, Mondays -->
+      <div class="row week-row">
+        <div class="row-label">Week of</div>
+        <div class="row-track">
+          <div class="week-label prior">Jan 5</div>
+          <div class="week-label prior">Jan 12</div>
+          <div class="week-label">Jan 19</div>
+          <div class="week-label">Jan 26</div>
+          <div class="week-label">Feb 2</div>
+          <div class="week-label">Feb 9</div>
+          <div class="week-label">Feb 16</div>
+          <div class="week-label">Feb 23</div>
+          <div class="week-label">Mar 2</div>
+          <div class="week-label">Mar 9</div>
+          <div class="week-label">Mar 16</div>
+        </div>
+      </div>
+
+      <!-- Milestones — solid diamond = released, outlined = projected (~ date), big red = contract end -->
+      <div class="row milestone-row">
+        <div class="row-label">Milestones</div>
+        <div class="row-track">
+          <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          <div class="milestone" style="grid-column: 2 / 3;">
+            <div class="diamond release"></div>
+            <div class="milestone-label">v1.0 · 1/13</div>
+          </div>
+          <div class="milestone projected" style="grid-column: 5 / 6;">
+            <div class="diamond release projected"></div>
+            <div class="milestone-label">v1.1 · ~2/3</div>
+          </div>
+          <div class="milestone renewal" style="grid-column: 11 / 12;">
+            <div class="diamond renewal"></div>
+            <div class="milestone-label">CONTRACT END · 3/16</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           SWIMLANE GROUPS. Each <details class="group"> is one lane.
+           The <summary> row is the lane header (usually with an epic
+           bar); child .row divs are the work items. Every row-track
+           starts with the same 11 filler cells, then the bar(s).
+           Lane color classes: cart, plp, experiments, implementations,
+           compliance, promotions — keep the class names (the palette
+           and skills key off them); the visible lane NAMES are yours.
+           ============================================================ -->
+
+      <!-- LANE EXAMPLE 1 — a finished epic: done epic bar + done child rows -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label">Cart Optimization <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-10" target="_blank" rel="noopener">PROJ-10</a></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar done epic" style="grid-column: 1 / 4;" title="Shipped in v1.0 on 1/13"><span class="bar-type">IMPL</span>Cart Optimization <span class="bar-status">Shipped 1/13</span></div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-11" target="_blank" rel="noopener">Global Cart Layout</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-11" target="_blank" rel="noopener">PROJ-11</a></span>
+            <span class="row-meta">Shipped in v1.0 · 1/13</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar done" style="grid-column: 1 / 4;" title="Shipped 1/13"><span class="bar-type">IMPL</span><span class="bar-label">Shipped</span></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- LANE EXAMPLE 2 — in-flight work: a bar crossing the today line
+           (`crosses` + inline --past: percentage of the bar already elapsed),
+           a NEW unticketed sub-item, and a SPIKE investigation -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label">Promotions <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-20" target="_blank" rel="noopener">PROJ-20</a></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions epic" style="grid-column: 2 / 5;"><span class="bar-type">IMPL</span>Discount + gifting logic <span class="bar-status">Sprint 1–2</span></div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-21" target="_blank" rel="noopener">BOGO Custom Discount</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-21" target="_blank" rel="noopener">PROJ-21</a></span>
+            <span class="row-meta">Slipping to hot-fix Thursday · edge-case review in progress</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions crosses" style="grid-column: 2 / 4; --past: 50%;" title="QA cleared; pending client sign-off"><span class="bar-type">IMPL</span><span class="bar-label">Pending sign-off</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-label sub-indented">
+            <span class="label-top"><span>BOGO PDP cross-sell copy</span><span class="id">NEW</span></span>
+            <span class="row-meta">No-code path first, hide cross-sells as fallback</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions" style="grid-column: 3 / 4;" title="No-code first, hide fallback"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-22" target="_blank" rel="noopener">Gift Product Removal</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-22" target="_blank" rel="noopener">PROJ-22</a></span>
+            <span class="row-meta">Platform investigation · cart race condition</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions" style="grid-column: 3 / 5;" title="Platform investigation"><span class="bar-type">SPIKE</span><span class="bar-label">Sprint 2</span></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- LANE EXAMPLE 3 — experimentation: IMPL instrumentation prerequisite, then TEST bars -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label">Experimentation <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-30" target="_blank" rel="noopener">PROJ-30</a></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments epic" style="grid-column: 3 / 11;"><span class="bar-type">TEST</span>Experimentation <span class="bar-status">2 tests through Sprint 5</span></div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">Cross-Sell Tracking</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">PROJ-31</a></span>
+            <span class="row-meta">Instrumentation prerequisite for cross-sell tests</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments" style="grid-column: 3 / 4;" title="Instrumentation · Sprint 2"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">Homepage Content Hierarchy</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">PROJ-32</a></span>
+            <span class="row-meta">Test #1 · setup in progress</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments" style="grid-column: 3 / 5;" title="Test #1 · Sprint 2"><span class="bar-type">TEST</span><span class="bar-label">2-wk test</span></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- LANE EXAMPLE 4 — implementation + compliance: BUG and CONV pills, a Decision bar -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label">Implementation <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-40" target="_blank" rel="noopener">PROJ-40</a></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-41" target="_blank" rel="noopener">Mobile CTA Above Fold</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-41" target="_blank" rel="noopener">PROJ-41</a></span>
+            <span class="row-meta">Bundled homepage release</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar implementations" style="grid-column: 3 / 5;" title="Bundled homepage release · Sprint 2"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">Disable Widget on Mobile</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">PROJ-42</a></span>
+            <span class="row-meta">Awaiting decision on badge removal</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar implementations" style="grid-column: 3 / 5;" title="Awaiting decision"><span class="bar-type">CONV</span><span class="bar-label">Decision</span></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">Timeline Compliance</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">PROJ-43</a></span>
+            <span class="row-meta">Theme reverted copy · under investigation</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar compliance" style="grid-column: 3 / 4;" title="Theme-revert investigation"><span class="bar-type">BUG</span><span class="bar-label">Investigation</span></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- PROPOSED — dashed red bars: surfaced but not yet scheduled/aligned -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label" style="color: var(--signal);">Proposed adds <span class="group-id">per strategic memo</span></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar proposed epic" style="grid-column: 3 / 9;"><span class="bar-type">TEST</span>Subscription-take-rate work · pending alignment</div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><span>Pricing Test</span><span class="id">NEW</span></span>
+            <span class="row-meta">Pending alignment · 2-wk test</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar proposed" style="grid-column: 3 / 7;" title="Design · launch · 2-wk test"><span class="bar-type">TEST</span><span class="bar-label">Design → test</span></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- DEFERRED — strikethrough bars: parked work, kept visible for the record -->
+      <details class="group" open>
+        <summary class="row group-row">
+          <div class="row-label" style="color: var(--ink-mute);">Deferred <span class="group-id muted">freeing capacity for proposed</span></div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          </div>
+        </summary>
+        <div class="row">
+          <div class="row-label indented">
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-50" target="_blank" rel="noopener">In-Grid Banners</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-50" target="_blank" rel="noopener">PROJ-50</a></span>
+            <span class="row-meta">Scope TBD · defer to next quarter</span>
+          </div>
+          <div class="row-track">
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar deferred" style="grid-column: 5 / 7;" title="Defer to next quarter"><span class="bar-type">IMPL</span><span class="bar-label">Defer</span></div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  <p class="legend-note">Click any row title to open its Jira ticket. Click group headers to collapse or expand swimlanes. Task-type pills (IMPL / TEST / BUG / SPIKE / CONV) appear at the start of each bar.</p>
+
+  <div class="legend">
+    <div class="legend-group">
+      <div class="legend-item"><span class="swatch cart"></span> Cart</div>
+      <div class="legend-item"><span class="swatch plp"></span> PLP</div>
+      <div class="legend-item"><span class="swatch promotions"></span> Promotions</div>
+      <div class="legend-item"><span class="swatch experiments"></span> Experiments</div>
+      <div class="legend-item"><span class="swatch implementations"></span> Implementations</div>
+      <div class="legend-item"><span class="swatch compliance"></span> Compliance</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-item"><span class="legend-pill">IMPL</span> Implementation</div>
+      <div class="legend-item"><span class="legend-pill">TEST</span> A/B / experiment</div>
+      <div class="legend-item"><span class="legend-pill">BUG</span> Defect</div>
+      <div class="legend-item"><span class="legend-pill">SPIKE</span> Investigation</div>
+      <div class="legend-item"><span class="legend-pill">CONV</span> Conversation / decision</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-item"><span class="swatch crosses"></span> Crosses today</div>
+      <div class="legend-item"><span class="swatch done"></span> Done</div>
+      <div class="legend-item"><span class="swatch proposed"></span> Proposed</div>
+      <div class="legend-item"><span class="swatch deferred"></span> Deferred</div>
+    </div>
+    <div class="legend-group">
+      <div class="legend-item"><span class="legend-diamond release"></span> Released</div>
+      <div class="legend-item"><span class="legend-diamond projected"></span> Projected release</div>
+      <div class="legend-item"><span class="legend-diamond renewal"></span> Contract end</div>
+    </div>
+    <div class="legend-group" style="border-right: none;">
+      <div class="legend-item"><span class="legend-today"></span> Today</div>
+    </div>
+  </div>
+
+  <footer>
+    Working draft. v1.0 · Sample Client × Anatta · Sprint windows and release dates are projected. Click any row title to open in Jira.
+  </footer>
+
+</div>
+
+<script>
+  (function() {
+    var noticeStart = new Date('2026-01-05T00:00:00'); // SETUP: engagement day 1 (drives the Day N/90 counter)
+    var ganttStart = new Date('2026-01-05T00:00:00'); // SETUP: Monday of the FIRST week column
+    var ganttEnd = new Date('2026-03-22T00:00:00'); // SETUP: end of the LAST column (contract end week + weekend)
+
+    var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function update() {
+      var today = new Date();
+      var dayOf90 = Math.max(1, Math.min(90, Math.floor((today - noticeStart) / 86400000) + 1));
+
+      var dayNum = document.getElementById('dayNum');
+      if (dayNum) dayNum.textContent = dayOf90;
+      var dayMeta = document.getElementById('dayMeta');
+      if (dayMeta) dayMeta.textContent = 'Day ' + dayOf90 + ' / 90';
+      var todayDate = document.getElementById('todayDate');
+      if (todayDate) todayDate.textContent = MONTHS[today.getMonth()] + ' ' + today.getDate();
+
+      var elapsed = (today - ganttStart) / 86400000;
+      var totalSpan = (ganttEnd - ganttStart) / 86400000;
+      var pct = Math.max(0, Math.min(1, elapsed / totalSpan));
+
+      var line = document.getElementById('todayLine');
+      var gantt = document.querySelector('.gantt');
+      if (line && gantt) {
+        var labelW = parseInt(getComputedStyle(gantt).getPropertyValue('--label-col'), 10) || 280;
+        var ganttW = gantt.offsetWidth;
+        var timelineW = ganttW - labelW;
+        line.style.left = (labelW + timelineW * pct) + 'px';
+        line.style.display = 'block';
+      }
+    }
+
+    function setAll(open) {
+      document.querySelectorAll('details.group').forEach(function(d) { d.open = open; });
+    }
+
+    function bindControls() {
+      var expandBtn = document.getElementById('expandAll');
+      var collapseBtn = document.getElementById('collapseAll');
+      if (expandBtn) expandBtn.addEventListener('click', function() { setAll(true); });
+      if (collapseBtn) collapseBtn.addEventListener('click', function() { setAll(false); });
+
+      // Prevent summary anchor clicks from toggling the accordion
+      document.querySelectorAll('summary.row a').forEach(function(a) {
+        a.addEventListener('click', function(e) { e.stopPropagation(); });
+      });
+
+      bindColResizer();
+    }
+
+    function bindColResizer() {
+      var resizer = document.getElementById('colResizer');
+      var gantt = document.querySelector('.gantt');
+      if (!resizer || !gantt) return;
+
+      var MIN = 200, MAX = 600;
+      var saved = parseInt(localStorage.getItem('roadmap-label-col'), 10);
+      if (!isNaN(saved) && saved >= MIN && saved <= MAX) {
+        gantt.style.setProperty('--label-col', saved + 'px');
+      }
+
+      resizer.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        var startX = e.clientX;
+        var startW = parseInt(getComputedStyle(gantt).getPropertyValue('--label-col'), 10) || 280;
+        resizer.classList.add('dragging');
+        try { resizer.setPointerCapture(e.pointerId); } catch (_) {}
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'col-resize';
+
+        function onMove(ev) {
+          var newW = Math.max(MIN, Math.min(MAX, startW + (ev.clientX - startX)));
+          gantt.style.setProperty('--label-col', newW + 'px');
+          update();
+        }
+        function onUp() {
+          resizer.classList.remove('dragging');
+          document.body.style.userSelect = '';
+          document.body.style.cursor = '';
+          var finalW = parseInt(getComputedStyle(gantt).getPropertyValue('--label-col'), 10);
+          if (finalW) localStorage.setItem('roadmap-label-col', finalW);
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+        }
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+      });
+    }
+
+    function scheduleUpdate() {
+      requestAnimationFrame(update);
+    }
+
+    function init() {
+      update();
+      bindControls();
+      scheduleUpdate();
+
+      var gantt = document.querySelector('.gantt');
+      if (gantt && typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(scheduleUpdate);
+        ro.observe(gantt);
+      }
+
+      if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === 'function') {
+        document.fonts.ready.then(scheduleUpdate);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+    window.addEventListener('load', scheduleUpdate);
+    window.addEventListener('resize', scheduleUpdate);
+    setInterval(update, 60000);
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) update();
+    });
+  })();
+</script>
+</body>
+</html>

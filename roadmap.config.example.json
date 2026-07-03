@@ -1,0 +1,10 @@
+{
+  "client_name": "Sample Client",
+  "client_key": "sample",
+  "html_file": "index.html",
+  "jira_org": "YOURORG.atlassian.net",
+  "jira_prefix": "PROJ-",
+  "transcripts_dir": "~/Documents/sampleclient/project/transcripts/",
+  "live_url": "https://sample-roadmap.vercel.app/",
+  "review_branch": "draft"
+}
