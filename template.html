@@ -801,7 +801,8 @@
       <button class="toggle-btn" id="expandAll" type="button">Expand all</button>
       <button class="toggle-btn" id="collapseAll" type="button">Collapse all</button>
     </div>
-    <div class="topbar-meta">DRAFT v1.0 · <span id="dayMeta">Day 1 / 90</span></div>
+    <!-- SETUP: quarter label, e.g. "Q1 Planning · Jan – Mar" -->
+    <div class="topbar-meta">DRAFT v1.0 · Q1 Planning · Jan – Mar</div>
   </div>
 
   <div class="title-block">
@@ -1141,8 +1142,6 @@
 
       var dayNum = document.getElementById('dayNum');
       if (dayNum) dayNum.textContent = dayOfQuarter;
-      var dayMeta = document.getElementById('dayMeta');
-      if (dayMeta) dayMeta.textContent = 'Day ' + dayOfQuarter + ' / ' + quarterDays;
       var todayDate = document.getElementById('todayDate');
       if (todayDate) todayDate.textContent = MONTHS[today.getMonth()] + ' ' + today.getDate();
 

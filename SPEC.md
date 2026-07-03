@@ -8,7 +8,7 @@ The file is **hand-authored static HTML** — no build step, no framework, no da
 
 | Section | Markup | Notes |
 |---|---|---|
-| Topbar | `.topbar` | Eyebrow (client name + quarter), Expand/Collapse all buttons, `DRAFT vX.X · Day N/92` meta |
+| Topbar | `.topbar` | Eyebrow (client name + quarter), Expand/Collapse all buttons, `DRAFT vX.X · Q3 Planning · June – Sept` meta |
 | Title block | `.title-block` | `h1.title` + one-sentence `.subtitle` |
 | Gantt | `.gantt-wrap > .gantt` | Today line, column resizer, then the rows below |
 | Sprint band row | `.row.sprint-row` | One `.sprint-band` per sprint, `Sprint N · Mon D – Mon D` |
@@ -33,7 +33,7 @@ The standard board is **quarterly** — most clients are ongoing retainers. The 
 
 **The quarter roll** (once per quarter, ~30 min): re-baseline the board for the new quarter — new carryover columns (the outgoing quarter's last two weeks, holding its shipped work), new week labels and sprint bands (numbering continues), new JS dates, unfinished bars re-placed on the new grid, Proposed items promoted or dropped, and the version bumped. The old quarter's board survives in git history; don't try to make one file show two quarters.
 
-**Today line:** positioned by JS from the dates at the top of the `<script>` block — `quarterStart` + `quarterDays` (drive the Day N/92 counter), `ganttStart` (Monday of the first carryover column), `ganttEnd` (end of the horizon column). Set them at each quarter roll; the line then tracks in real time. Bars that straddle the line get `crosses` + an inline `--past: N%` (percentage of the bar already elapsed — recompute it whenever you move/extend a crossing bar).
+**Today line:** positioned by JS from the dates at the top of the `<script>` block — `quarterStart` + `quarterDays` (drive the Day N/92 readout on the today flag), `ganttStart` (Monday of the first carryover column), `ganttEnd` (end of the horizon column). Set them at each quarter roll; the line then tracks in real time. Bars that straddle the line get `crosses` + an inline `--past: N%` (percentage of the bar already elapsed — recompute it whenever you move/extend a crossing bar).
 
 ## 3. Bar encoding
 

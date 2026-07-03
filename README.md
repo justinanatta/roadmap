@@ -2,7 +2,7 @@
 
 **What this is, in one sentence:** a way to give every Anatta client a beautiful webpage that shows what we shipped, what we're working on, and what's coming next — and it looks the same for every client, no matter which PM runs the account.
 
-**See it before you read anything else:** deploy this repo (or ask Justin for the demo link) and you'll see a finished example for a made-up client called "Example Co." That page IS the product. Your job is to make one of those for your client.
+**See it before you read anything else:** open the live demo — **https://roadmap-alpha-three.vercel.app/** — a finished example for a made-up client called "Example Co." That page IS the product. Your job is to make one of those for your client.
 
 ---
 
