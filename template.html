@@ -793,6 +793,11 @@
     left: 0;
     z-index: 5;
   }
+
+  /* Client-action bars: work blocked on a client decision/approval (v1.3) */
+  .bar.client-action { box-shadow: inset 0 0 0 2px var(--signal); }
+  .bar.client-action .bar-type { background: var(--signal); color: #fff; }
+  .swatch.client-action-swatch { background: transparent; box-shadow: inset 0 0 0 2px var(--signal); }
 </style>
 </head>
 <body>

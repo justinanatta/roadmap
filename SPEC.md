@@ -73,6 +73,7 @@ The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families
 | Proposed | `proposed` | dashed red outline, hatched | surfaced, not yet scheduled (no lane class needed) |
 | Deferred | `deferred` | dashed gray outline, strikethrough | parked; kept visible for the record |
 | Crossing today | `crosses` + `--past: N%` | left portion darkened | in-flight bar straddling the today line |
+| Awaiting client | `client-action` | signal-red inner outline + filled pill | work blocked on a client decision/approval (usually a CONV bar); add a legend entry (`swatch client-action-swatch`) when used |
 | Epic | `epic` | taller, bolder | lane-header summary bar (combine with lane/state) |
 
 **Task-type pills** (`bar-type` span, exactly one per bar):
