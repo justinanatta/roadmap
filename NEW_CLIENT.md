@@ -24,7 +24,7 @@ The initial setup (steps 2–3) can be committed straight to `main` — the revi
 4. **Jira** — replace `YOURORG.atlassian.net` and the `PROJ-` prefix with the client's real org/project.
 5. **Milestones** — real release cadence; keep the quarter-boundary marker in the last column (relabel it "Contract End" for bounded engagements).
 6. **Clean up** — delete the `SETUP:` comments as you resolve them; a configured board should have none left (they contain placeholder strings that trip the final verification grep).
-7. **Timeline focus** (nothing to configure) — the second `<script>` block gives every board sticky row labels, opens it centered on today, and collapses rows that are scrolled out of view (topbar toggle). Leave it as is; it adapts to any column count.
+7. **Sticky labels** (nothing to configure) — row titles stay pinned while the timeline scrolls horizontally; it's plain CSS and adapts to any column count.
 
 ## 3. Replace the example content
 
