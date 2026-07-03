@@ -17,14 +17,14 @@ Copy this repo's `.claude/commands/` folder too if the PM edits with Claude Code
 ## 2. Configure the skeleton (search for `SETUP:` comments in index.html)
 
 1. **Client name** — replace every "Sample Client" (title, meta description, eyebrow, h1, subtitle, footer). Pick a favicon emoji.
-2. **Timeline** — decide engagement length. Default grid is 10 week columns + 1 contract-end column (5 two-week sprints). If yours differs, change `repeat(11, 1fr)` in `.row-track`, the cell runs, sprint bands, and week labels together (SPEC §2).
-3. **Dates** — set the sprint band labels, the 11 week labels (Mondays), and the three JS dates at the top of the `<script>` block (`noticeStart`, `ganttStart`, `ganttEnd`).
+2. **Timeline** — the standard board is quarterly: a 16-column grid = 2 carryover weeks from last quarter + 13 quarter weeks + 1 next-quarter horizon column (SPEC §2). Only change the column count for a bounded engagement, and then change `repeat(16, 1fr)` in `.row-track`, the cell runs, sprint bands, and week labels together.
+3. **Dates** — set the sprint band labels (sprint numbers CONTINUE across quarters — don't reset to 1), the 16 week labels (Mondays), and the JS dates at the top of the `<script>` block (`quarterStart`, `quarterDays`, `ganttStart`, `ganttEnd`).
 4. **Jira** — replace `YOURORG.atlassian.net` and the `PROJ-` prefix with the client's real org/project.
-5. **Milestones** — real release cadence; keep the contract-end marker in the last column.
+5. **Milestones** — real release cadence; keep the quarter-boundary marker in the last column (relabel it "Contract End" for bounded engagements).
 
 ## 3. Replace the example content
 
-The template's lanes/rows are exemplars — one per pattern (done epic, crossing bar, NEW sub-item, SPIKE, TEST, CONV decision, BUG, proposed, deferred). Duplicate the pattern you need, delete the rest, keep the legend in sync with the lanes you actually use. **Copy the 11-cell filler run exactly** when adding rows.
+The template's lanes/rows are exemplars — one per pattern (done epic, crossing bar, NEW sub-item, SPIKE, TEST, CONV decision, BUG, proposed, deferred). Duplicate the pattern you need, delete the rest, keep the legend in sync with the lanes you actually use. **Copy the 16-cell filler run exactly** when adding rows. Each quarter thereafter, do the quarter roll (SPEC §2) as its own reviewed commit.
 
 ## 4. Deploy
 

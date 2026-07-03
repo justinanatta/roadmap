@@ -126,7 +126,7 @@
   }
   .gantt {
     --label-col: 280px;
-    min-width: 1200px;
+    min-width: 1400px;
     width: 100%;
     position: relative;
   }
@@ -317,7 +317,7 @@
 
   .row-track {
     display: grid;
-    grid-template-columns: repeat(11, 1fr);
+    grid-template-columns: repeat(16, 1fr);
     border-bottom: 1px solid var(--rule);
     background: var(--ground);
     position: relative;
@@ -758,7 +758,7 @@
     h1.title { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 6px; }
     .subtitle { font-size: 12px; line-height: 1.4; }
     .gantt-wrap { margin-top: 24px; }
-    .gantt { --label-col: 160px; min-width: 900px; }
+    .gantt { --label-col: 160px; min-width: 1000px; }
     .row-label { padding: 6px 8px; font-size: 11px; }
     .row-label.indented { padding-left: 18px; }
     .row-label.sub-indented { padding-left: 28px; font-size: 11px; }
@@ -784,7 +784,7 @@
 <div class="page">
 
   <div class="topbar">
-    <div class="eyebrow">Sample Client Roadmap</div>
+    <div class="eyebrow">Sample Client · Q1 2026</div>
     <div class="topbar-actions">
       <button class="toggle-btn" id="expandAll" type="button">Expand all</button>
       <button class="toggle-btn" id="collapseAll" type="button">Collapse all</button>
@@ -793,7 +793,7 @@
   </div>
 
   <div class="title-block">
-    <h1 class="title">Sample Client Optimization Roadmap</h1>
+    <h1 class="title">Sample Client — Q1 2026 Optimization Roadmap</h1>
     <p class="subtitle">In-flight work, proposed tests, shipped releases, and milestones across the Sample Client engagement.</p>
   </div>
 
@@ -812,34 +812,43 @@
 
       <!-- ============================================================
            TIMELINE GEOMETRY — the one thing everything else hangs on.
-           The track is an 11-column CSS grid: 10 week columns + 1
-           contract-end column. Every bar and milestone is placed with
-           grid-column: {startCol} / {endCol} (endCol is EXCLUSIVE).
-           One sprint = 2 weeks = 2 columns. Weeks already elapsed at
-           launch get the `prior` class (darker). If your engagement
-           has a different week count, change repeat(11, 1fr) in the
-           CSS (.row-track) AND every cell row below to match.
+           QUARTERLY BOARD: the track is a 16-column CSS grid —
+           2 carryover weeks from the prior quarter (prior-shaded,
+           they hold recently-shipped context) + 13 quarter weeks
+           + 1 next-quarter horizon column. Every bar and milestone
+           is placed with grid-column: {startCol} / {endCol}
+           (endCol is EXCLUSIVE). One column = one week; one sprint
+           = 2 weeks = 2 columns. Sprint NUMBERS CONTINUE across
+           quarters (ongoing retainer), and at each quarter boundary
+           the board is re-baselined (see SPEC.md §7).
+           If you change the column count, change repeat(16, 1fr)
+           in the CSS (.row-track) AND every cell run below to match.
            ============================================================ -->
 
-      <!-- Sprint band row — SETUP: real sprint numbers + date ranges -->
+      <!-- Sprint band row — SETUP: real continuing sprint numbers + date ranges -->
       <div class="row sprint-row">
         <div class="row-label">Sprint</div>
         <div class="row-track">
-          <div class="sprint-band prior" style="grid-column: 1 / 3;">Sprint 1 · Jan 5 – Jan 16</div>
-          <div class="sprint-band tint" style="grid-column: 3 / 5;">Sprint 2 · Jan 19 – Jan 30</div>
-          <div class="sprint-band tint-alt" style="grid-column: 5 / 7;">Sprint 3 · Feb 2 – Feb 13</div>
-          <div class="sprint-band tint" style="grid-column: 7 / 9;">Sprint 4 · Feb 16 – Feb 27</div>
-          <div class="sprint-band tint-alt" style="grid-column: 9 / 11;">Sprint 5 · Mar 2 – Mar 13</div>
-          <div class="sprint-band renewal-band" style="grid-column: 11 / 12;">Contract End</div>
+          <div class="sprint-band prior" style="grid-column: 1 / 3;">Sprint 11 · Dec 22 – Jan 2</div>
+          <div class="sprint-band tint" style="grid-column: 3 / 5;">Sprint 12 · Jan 5 – Jan 16</div>
+          <div class="sprint-band tint-alt" style="grid-column: 5 / 7;">Sprint 13 · Jan 19 – Jan 30</div>
+          <div class="sprint-band tint" style="grid-column: 7 / 9;">Sprint 14 · Feb 2 – Feb 13</div>
+          <div class="sprint-band tint-alt" style="grid-column: 9 / 11;">Sprint 15 · Feb 16 – Feb 27</div>
+          <div class="sprint-band tint" style="grid-column: 11 / 13;">Sprint 16 · Mar 2 – Mar 13</div>
+          <div class="sprint-band tint-alt" style="grid-column: 13 / 15;">Sprint 17 · Mar 16 – Mar 27</div>
+          <div class="sprint-band tint" style="grid-column: 15 / 16;">Q2 Planning</div>
+          <div class="sprint-band renewal-band" style="grid-column: 16 / 17;">Q2 →</div>
         </div>
       </div>
 
-      <!-- Week labels — SETUP: one label per column, Mondays -->
+      <!-- Week labels — SETUP: one label per column, Mondays; carryover weeks get `prior` -->
       <div class="row week-row">
         <div class="row-label">Week of</div>
         <div class="row-track">
-          <div class="week-label prior">Jan 5</div>
-          <div class="week-label prior">Jan 12</div>
+          <div class="week-label prior">Dec 22</div>
+          <div class="week-label prior">Dec 29</div>
+          <div class="week-label">Jan 5</div>
+          <div class="week-label">Jan 12</div>
           <div class="week-label">Jan 19</div>
           <div class="week-label">Jan 26</div>
           <div class="week-label">Feb 2</div>
@@ -849,25 +858,29 @@
           <div class="week-label">Mar 2</div>
           <div class="week-label">Mar 9</div>
           <div class="week-label">Mar 16</div>
+          <div class="week-label">Mar 23</div>
+          <div class="week-label">Mar 30</div>
+          <div class="week-label">Apr 6</div>
         </div>
       </div>
 
-      <!-- Milestones — solid diamond = released, outlined = projected (~ date), big red = contract end -->
+      <!-- Milestones — solid diamond = released, outlined = projected (~ date), big red = quarter boundary
+           (for a bounded engagement, relabel the red marker "CONTRACT END · date" instead) -->
       <div class="row milestone-row">
         <div class="row-label">Milestones</div>
         <div class="row-track">
-          <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
           <div class="milestone" style="grid-column: 2 / 3;">
             <div class="diamond release"></div>
-            <div class="milestone-label">v1.0 · 1/13</div>
+            <div class="milestone-label">v1.0 · 12/30</div>
           </div>
           <div class="milestone projected" style="grid-column: 5 / 6;">
             <div class="diamond release projected"></div>
-            <div class="milestone-label">v1.1 · ~2/3</div>
+            <div class="milestone-label">v1.1 · ~1/20</div>
           </div>
-          <div class="milestone renewal" style="grid-column: 11 / 12;">
+          <div class="milestone renewal" style="grid-column: 16 / 17;">
             <div class="diamond renewal"></div>
-            <div class="milestone-label">CONTRACT END · 3/16</div>
+            <div class="milestone-label">Q2 KICKOFF · 4/1</div>
           </div>
         </div>
       </div>
@@ -876,7 +889,7 @@
            SWIMLANE GROUPS. Each <details class="group"> is one lane.
            The <summary> row is the lane header (usually with an epic
            bar); child .row divs are the work items. Every row-track
-           starts with the same 11 filler cells, then the bar(s).
+           starts with the same 16 filler cells, then the bar(s).
            Lane color classes: cart, plp, experiments, implementations,
            compliance, promotions — keep the class names (the palette
            and skills key off them); the visible lane NAMES are yours.
@@ -887,18 +900,18 @@
         <summary class="row group-row">
           <div class="row-label">Cart Optimization <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-10" target="_blank" rel="noopener">PROJ-10</a></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar done epic" style="grid-column: 1 / 4;" title="Shipped in v1.0 on 1/13"><span class="bar-type">IMPL</span>Cart Optimization <span class="bar-status">Shipped 1/13</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar done epic" style="grid-column: 1 / 4;" title="Shipped in v1.0 on 12/30"><span class="bar-type">IMPL</span>Cart Optimization <span class="bar-status">Shipped 12/30</span></div>
           </div>
         </summary>
         <div class="row">
           <div class="row-label indented">
             <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-11" target="_blank" rel="noopener">Global Cart Layout</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-11" target="_blank" rel="noopener">PROJ-11</a></span>
-            <span class="row-meta">Shipped in v1.0 · 1/13</span>
+            <span class="row-meta">Shipped in v1.0 · 12/30</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar done" style="grid-column: 1 / 4;" title="Shipped 1/13"><span class="bar-type">IMPL</span><span class="bar-label">Shipped</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar done" style="grid-column: 1 / 3;" title="Shipped 12/30"><span class="bar-type">IMPL</span><span class="bar-label">Shipped</span></div>
           </div>
         </div>
       </details>
@@ -910,28 +923,28 @@
         <summary class="row group-row">
           <div class="row-label">Promotions <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-20" target="_blank" rel="noopener">PROJ-20</a></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar promotions epic" style="grid-column: 2 / 5;"><span class="bar-type">IMPL</span>Discount + gifting logic <span class="bar-status">Sprint 1–2</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions epic" style="grid-column: 3 / 7;"><span class="bar-type">IMPL</span>Discount + gifting logic <span class="bar-status">Sprint 12–13</span></div>
           </div>
         </summary>
         <div class="row">
           <div class="row-label indented">
             <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-21" target="_blank" rel="noopener">BOGO Custom Discount</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-21" target="_blank" rel="noopener">PROJ-21</a></span>
-            <span class="row-meta">Slipping to hot-fix Thursday · edge-case review in progress</span>
+            <span class="row-meta">QA cleared · pending client sign-off</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar promotions crosses" style="grid-column: 2 / 4; --past: 50%;" title="QA cleared; pending client sign-off"><span class="bar-type">IMPL</span><span class="bar-label">Pending sign-off</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions crosses" style="grid-column: 3 / 6; --past: 33%;" title="QA cleared; pending client sign-off · crosses the today line, --past = share already elapsed"><span class="bar-type">IMPL</span><span class="bar-label">Pending sign-off</span></div>
           </div>
         </div>
         <div class="row">
           <div class="row-label sub-indented">
             <span class="label-top"><span>BOGO PDP cross-sell copy</span><span class="id">NEW</span></span>
-            <span class="row-meta">No-code path first, hide cross-sells as fallback</span>
+            <span class="row-meta">Unticketed child item · no-code path first</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar promotions" style="grid-column: 3 / 4;" title="No-code first, hide fallback"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions" style="grid-column: 5 / 6;" title="No-code first, hide fallback"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 13</span></div>
           </div>
         </div>
         <div class="row">
@@ -940,49 +953,49 @@
             <span class="row-meta">Platform investigation · cart race condition</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar promotions" style="grid-column: 3 / 5;" title="Platform investigation"><span class="bar-type">SPIKE</span><span class="bar-label">Sprint 2</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar promotions" style="grid-column: 5 / 7;" title="Platform investigation"><span class="bar-type">SPIKE</span><span class="bar-label">Sprint 13</span></div>
           </div>
         </div>
       </details>
 
-      <!-- LANE EXAMPLE 3 — experimentation: IMPL instrumentation prerequisite, then TEST bars -->
+      <!-- LANE EXAMPLE 3 — experimentation: TEST bars on a rolling cadence -->
       <details class="group" open>
         <summary class="row group-row">
           <div class="row-label">Experimentation <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-30" target="_blank" rel="noopener">PROJ-30</a></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar experiments epic" style="grid-column: 3 / 11;"><span class="bar-type">TEST</span>Experimentation <span class="bar-status">2 tests through Sprint 5</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments epic" style="grid-column: 3 / 13;"><span class="bar-type">TEST</span>Experimentation <span class="bar-status">Tests through Sprint 16</span></div>
           </div>
         </summary>
         <div class="row">
           <div class="row-label indented">
-            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">Cross-Sell Tracking</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">PROJ-31</a></span>
-            <span class="row-meta">Instrumentation prerequisite for cross-sell tests</span>
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">Homepage Hero Test</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-31" target="_blank" rel="noopener">PROJ-31</a></span>
+            <span class="row-meta">Test #1 · setup in progress</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar experiments" style="grid-column: 3 / 4;" title="Instrumentation · Sprint 2"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments" style="grid-column: 5 / 7;" title="Test #1 · Sprint 13"><span class="bar-type">TEST</span><span class="bar-label">2-wk test</span></div>
           </div>
         </div>
         <div class="row">
           <div class="row-label indented">
-            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">Homepage Content Hierarchy</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">PROJ-32</a></span>
-            <span class="row-meta">Test #1 · setup in progress</span>
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">PDP Gallery Test</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-32" target="_blank" rel="noopener">PROJ-32</a></span>
+            <span class="row-meta">Test #2 · follows Test #1</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar experiments" style="grid-column: 3 / 5;" title="Test #1 · Sprint 2"><span class="bar-type">TEST</span><span class="bar-label">2-wk test</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar experiments" style="grid-column: 7 / 9;" title="Test #2 · Sprint 14"><span class="bar-type">TEST</span><span class="bar-label">2-wk test</span></div>
           </div>
         </div>
       </details>
 
-      <!-- LANE EXAMPLE 4 — implementation + compliance: BUG and CONV pills, a Decision bar -->
+      <!-- LANE EXAMPLE 4 — implementation + compliance: CONV decision bar and a compliance BUG -->
       <details class="group" open>
         <summary class="row group-row">
           <div class="row-label">Implementation <a class="group-id" href="https://YOURORG.atlassian.net/browse/PROJ-40" target="_blank" rel="noopener">PROJ-40</a></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
           </div>
         </summary>
         <div class="row">
@@ -991,28 +1004,28 @@
             <span class="row-meta">Bundled homepage release</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar implementations" style="grid-column: 3 / 5;" title="Bundled homepage release · Sprint 2"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 2</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar implementations" style="grid-column: 5 / 7;" title="Bundled homepage release · Sprint 13"><span class="bar-type">IMPL</span><span class="bar-label">Sprint 13</span></div>
           </div>
         </div>
         <div class="row">
           <div class="row-label indented">
-            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">Disable Widget on Mobile</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">PROJ-42</a></span>
-            <span class="row-meta">Awaiting decision on badge removal</span>
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">Badge Removal Decision</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-42" target="_blank" rel="noopener">PROJ-42</a></span>
+            <span class="row-meta">Awaiting decision on PDP badge removal</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar implementations" style="grid-column: 3 / 5;" title="Awaiting decision"><span class="bar-type">CONV</span><span class="bar-label">Decision</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar implementations" style="grid-column: 5 / 7;" title="Awaiting decision"><span class="bar-type">CONV</span><span class="bar-label">Decision</span></div>
           </div>
         </div>
         <div class="row">
           <div class="row-label indented">
-            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">Timeline Compliance</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">PROJ-43</a></span>
-            <span class="row-meta">Theme reverted copy · under investigation</span>
+            <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">Checkout Error on Login</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-43" target="_blank" rel="noopener">PROJ-43</a></span>
+            <span class="row-meta">Filed this week · under investigation</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar compliance" style="grid-column: 3 / 4;" title="Theme-revert investigation"><span class="bar-type">BUG</span><span class="bar-label">Investigation</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar compliance crosses" style="grid-column: 3 / 5; --past: 30%;" title="Investigation crosses the today line"><span class="bar-type">BUG</span><span class="bar-label">Investigation</span></div>
           </div>
         </div>
       </details>
@@ -1020,20 +1033,20 @@
       <!-- PROPOSED — dashed red bars: surfaced but not yet scheduled/aligned -->
       <details class="group" open>
         <summary class="row group-row">
-          <div class="row-label" style="color: var(--signal);">Proposed adds <span class="group-id">per strategic memo</span></div>
+          <div class="row-label" style="color: var(--signal);">Proposed adds <span class="group-id">next-quarter candidates</span></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar proposed epic" style="grid-column: 3 / 9;"><span class="bar-type">TEST</span>Subscription-take-rate work · pending alignment</div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar proposed epic" style="grid-column: 7 / 16;"><span class="bar-type">TEST</span>Retention + AOV candidates · pending alignment</div>
           </div>
         </summary>
         <div class="row">
           <div class="row-label indented">
-            <span class="label-top"><span>Pricing Test</span><span class="id">NEW</span></span>
-            <span class="row-meta">Pending alignment · 2-wk test</span>
+            <span class="label-top"><span>Post-Purchase Upsell</span><span class="id">NEW</span></span>
+            <span class="row-meta">Pending alignment · build then 2-wk test</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar proposed" style="grid-column: 3 / 7;" title="Design · launch · 2-wk test"><span class="bar-type">TEST</span><span class="bar-label">Design → test</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar proposed" style="grid-column: 9 / 13;" title="Build + 2-wk test"><span class="bar-type">TEST</span><span class="bar-label">Build → test</span></div>
           </div>
         </div>
       </details>
@@ -1043,17 +1056,17 @@
         <summary class="row group-row">
           <div class="row-label" style="color: var(--ink-mute);">Deferred <span class="group-id muted">freeing capacity for proposed</span></div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
           </div>
         </summary>
         <div class="row">
           <div class="row-label indented">
             <span class="label-top"><a href="https://YOURORG.atlassian.net/browse/PROJ-50" target="_blank" rel="noopener">In-Grid Banners</a><a class="id" href="https://YOURORG.atlassian.net/browse/PROJ-50" target="_blank" rel="noopener">PROJ-50</a></span>
-            <span class="row-meta">Scope TBD · defer to next quarter</span>
+            <span class="row-meta">Scope TBD · revisit in next-quarter planning</span>
           </div>
           <div class="row-track">
-            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-            <div class="bar deferred" style="grid-column: 5 / 7;" title="Defer to next quarter"><span class="bar-type">IMPL</span><span class="bar-label">Defer</span></div>
+            <div class="cell prior"></div><div class="cell prior"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="bar deferred" style="grid-column: 7 / 9;" title="Revisit in next-quarter planning"><span class="bar-type">IMPL</span><span class="bar-label">Defer</span></div>
           </div>
         </div>
       </details>
@@ -1061,7 +1074,7 @@
     </div>
   </div>
 
-  <p class="legend-note">Click any row title to open its Jira ticket. Click group headers to collapse or expand swimlanes. Task-type pills (IMPL / TEST / BUG / SPIKE / CONV) appear at the start of each bar.</p>
+  <p class="legend-note">Click any row title to open its Jira ticket. Click group headers to collapse or expand swimlanes. Task-type pills (IMPL / TEST / BUG / SPIKE / CONV) appear at the start of each bar. Lane colors are fixed by the format; lane names are per-client.</p>
 
   <div class="legend">
     <div class="legend-group">
@@ -1088,7 +1101,7 @@
     <div class="legend-group">
       <div class="legend-item"><span class="legend-diamond release"></span> Released</div>
       <div class="legend-item"><span class="legend-diamond projected"></span> Projected release</div>
-      <div class="legend-item"><span class="legend-diamond renewal"></span> Contract end</div>
+      <div class="legend-item"><span class="legend-diamond renewal"></span> Quarter boundary</div>
     </div>
     <div class="legend-group" style="border-right: none;">
       <div class="legend-item"><span class="legend-today"></span> Today</div>
@@ -1103,20 +1116,21 @@
 
 <script>
   (function() {
-    var noticeStart = new Date('2026-01-05T00:00:00'); // SETUP: engagement day 1 (drives the Day N/90 counter)
-    var ganttStart = new Date('2026-01-05T00:00:00'); // SETUP: Monday of the FIRST week column
-    var ganttEnd = new Date('2026-03-22T00:00:00'); // SETUP: end of the LAST column (contract end week + weekend)
+    var quarterStart = new Date('2026-01-01T00:00:00'); // SETUP: first calendar day of the quarter (drives the Day N counter)
+    var quarterDays = 90;                                    // SETUP: days in the quarter (90 for Q1, 91 Q2, 92 Q3/Q4)
+    var ganttStart = new Date('2025-12-22T00:00:00'); // SETUP: Monday of the FIRST column (first carryover week)
+    var ganttEnd = new Date('2026-04-12T00:00:00'); // SETUP: end of the LAST column (next-quarter horizon week)
 
     var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     function update() {
       var today = new Date();
-      var dayOf90 = Math.max(1, Math.min(90, Math.floor((today - noticeStart) / 86400000) + 1));
+      var dayOfQuarter = Math.max(1, Math.min(quarterDays, Math.floor((today - quarterStart) / 86400000) + 1));
 
       var dayNum = document.getElementById('dayNum');
-      if (dayNum) dayNum.textContent = dayOf90;
+      if (dayNum) dayNum.textContent = dayOfQuarter;
       var dayMeta = document.getElementById('dayMeta');
-      if (dayMeta) dayMeta.textContent = 'Day ' + dayOf90 + ' / 90';
+      if (dayMeta) dayMeta.textContent = 'Day ' + dayOfQuarter + ' / ' + quarterDays;
       var todayDate = document.getElementById('todayDate');
       if (todayDate) todayDate.textContent = MONTHS[today.getMonth()] + ' ' + today.getDate();
 

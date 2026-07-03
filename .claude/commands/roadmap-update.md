@@ -42,7 +42,7 @@ The roadmap is a **client-facing artifact**. Transcripts contain candid internal
 
 1. Read the transcript. Read the current roadmap HTML (config's `html_file`).
 2. **For each existing bar** decide from the transcript: did it **ship** (→ `done`, set status label + grid-column to the ship sprint), **slip** (→ move grid-column / update `title` + label with the new date), **scope-change** (→ update label/title, maybe split a bar), **get killed** (→ `deferred`, strikethrough), or **get redirected** (e.g. IMPL flipped to TEST → change the pill and lane). Only touch bars the transcript actually speaks to.
-3. **For each new item** surfaced: add a row + bar in the right lane with the correct pill, `proposed` (dashed) until it has a real sprint, then solid once scheduled. Copy the 11-cell filler run exactly from a neighboring row.
+3. **For each new item** surfaced: add a row + bar in the right lane with the correct pill, `proposed` (dashed) until it has a real sprint, then solid once scheduled. Copy the 16-cell filler run exactly from a neighboring row.
 4. Keep grid-column math consistent with the existing sprint banding. Match surrounding indentation and structure precisely — this is surgical HTML editing, not a rewrite.
 5. Do **not** restructure the page, rename lanes, change CSS, or add/remove sections beyond what the transcript dictates.
 

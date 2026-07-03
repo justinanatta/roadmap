@@ -8,27 +8,32 @@ The file is **hand-authored static HTML** — no build step, no framework, no da
 
 | Section | Markup | Notes |
 |---|---|---|
-| Topbar | `.topbar` | Eyebrow (client name), Expand/Collapse all buttons, `DRAFT vX.X · Day N/90` meta |
+| Topbar | `.topbar` | Eyebrow (client name + quarter), Expand/Collapse all buttons, `DRAFT vX.X · Day N/92` meta |
 | Title block | `.title-block` | `h1.title` + one-sentence `.subtitle` |
 | Gantt | `.gantt-wrap > .gantt` | Today line, column resizer, then the rows below |
 | Sprint band row | `.row.sprint-row` | One `.sprint-band` per sprint, `Sprint N · Mon D – Mon D` |
 | Week label row | `.row.week-row` | One `.week-label` per column (Mondays) |
-| Milestone row | `.row.milestone-row` | Release diamonds + contract-end marker |
+| Milestone row | `.row.milestone-row` | Release diamonds + quarter-boundary (or contract-end) marker |
 | Swimlane groups | `details.group` | One per lane; `summary` = lane header row, children = work items |
 | Legend note + legend | `.legend-note`, `.legend` | Keep in sync with the lanes/pills actually used |
 | Footer | `footer` | `Working draft. vX.X · Client × Anatta · …` |
 
 ## 2. Timeline geometry (the load-bearing rule)
 
-The track is a CSS grid: `grid-template-columns: repeat(11, 1fr)` — **10 week columns + 1 contract-end column**. Everything is placed with `grid-column: {startCol} / {endCol}`, and **endCol is exclusive** (a bar spanning weeks 1–2 is `grid-column: 1 / 3`).
+The standard board is **quarterly** — most clients are ongoing retainers. The track is a CSS grid: `grid-template-columns: repeat(16, 1fr)` — **2 carryover weeks from the prior quarter + 13 quarter weeks + 1 next-quarter horizon column**. Everything is placed with `grid-column: {startCol} / {endCol}`, and **endCol is exclusive** (a bar spanning weeks 1–2 is `grid-column: 1 / 3`).
 
 - **1 column = 1 week; 1 sprint = 2 weeks = 2 columns.**
-- Column 1 is the engagement's first week; the last column is reserved for the Contract End band.
-- Weeks already elapsed when the roadmap was first published carry the `prior` class on their cells, week labels, and sprint bands (darker tint).
-- Every `.row-track` begins with the same run of 11 filler `<div class="cell">` divs (with `prior` on the elapsed ones) — copy the run exactly when adding a row.
-- A different engagement length means changing `repeat(11, 1fr)` in `.row-track`, every cell run, the sprint bands, and the week labels together. Do it once at setup, never mid-engagement.
+- **Columns 1–2 (carryover)** are the last two weeks of the previous quarter, always `prior`-shaded. They exist to hold recently-shipped work — the client should open the board and see things done, not an empty runway.
+- **Columns 3–14** are the six two-week sprints of the quarter. **Sprint numbers continue across quarters** (Sprint 13, 14, … — never reset to 1); that's what says "ongoing relationship."
+- **Column 15** is the quarter's 13th week — the wrap / next-quarter-planning week band.
+- **Column 16** is the next-quarter horizon ("Q4 →" band + "Q4 KICKOFF" milestone, `renewal-band`/`renewal` classes). For a **bounded engagement**, relabel this column "Contract End" instead — same classes, different words.
+- Weeks that have elapsed carry the `prior` class on their cells, week labels, and sprint bands (darker tint). Update `prior` shading as part of content edits, not on its own schedule.
+- Every `.row-track` begins with the same run of 16 filler `<div class="cell">` divs (with `prior` on the elapsed ones) — copy the run exactly when adding a row.
+- Changing the column count means changing `repeat(16, 1fr)` in `.row-track`, every cell run, the sprint bands, and the week labels together. Do it only at a quarter roll, never mid-quarter.
 
-**Today line:** positioned by JS from three dates at the top of the `<script>` block — `noticeStart` (engagement day 1, drives the Day N/90 counter), `ganttStart` (Monday of the first week column), `ganttEnd` (end of the last column). Set them at setup; the line then tracks in real time. Bars that straddle the line get `crosses` + an inline `--past: N%` (percentage of the bar already elapsed — recompute it whenever you move/extend a crossing bar).
+**The quarter roll** (once per quarter, ~30 min): re-baseline the board for the new quarter — new carryover columns (the outgoing quarter's last two weeks, holding its shipped work), new week labels and sprint bands (numbering continues), new JS dates, unfinished bars re-placed on the new grid, Proposed items promoted or dropped, and the version bumped. The old quarter's board survives in git history; don't try to make one file show two quarters.
+
+**Today line:** positioned by JS from the dates at the top of the `<script>` block — `quarterStart` + `quarterDays` (drive the Day N/92 counter), `ganttStart` (Monday of the first carryover column), `ganttEnd` (end of the horizon column). Set them at each quarter roll; the line then tracks in real time. Bars that straddle the line get `crosses` + an inline `--past: N%` (percentage of the bar already elapsed — recompute it whenever you move/extend a crossing bar).
 
 ## 3. Bar encoding
 
@@ -53,7 +58,7 @@ Epic bars on lane headers use bare text + a trailing `<span class="bar-status">S
 | `compliance` | dark slate blue | `#3D5F73` |
 | `promotions` | dark teal | `#1F5D5D` |
 
-The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families, luminance dropped for WCAG AA+ white-text contrast. Don't substitute colors. Signal red (`--signal`, `#8B3D14`) is reserved for the Contract End marker and proposed-bar accents — never for lanes.
+The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families, luminance dropped for WCAG AA+ white-text contrast. Don't substitute colors. Signal red (`--signal`, `#8B3D14`) is reserved for the quarter-boundary/contract-end marker and proposed-bar accents — never for lanes.
 
 **State classes** (added after the lane class):
 
@@ -94,7 +99,7 @@ The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families
 - `indented` = normal work item; `sub-indented` = child of another item (renders a `↳`).
 - Unticketed items: plain `<span>` title + `<span class="id">NEW</span>` instead of Jira links. Give them a real ticket link once filed.
 - `row-meta` is a short italic status line — neutral, outcome-focused (see guardrails). Hidden on mobile, so never put load-bearing info only there.
-- Milestones: `.milestone` with a `.diamond` — solid green `release` = shipped, outlined `release projected` (+ `projected` on the wrapper, `~` before the date) = projected, big red `renewal` = contract end.
+- Milestones: `.milestone` with a `.diamond` — solid green `release` = shipped, outlined `release projected` (+ `projected` on the wrapper, `~` before the date) = projected, big red `renewal` = quarter boundary (or contract end on bounded engagements).
 
 ## 5. Writing rules
 
@@ -126,3 +131,4 @@ The roadmap is a **client-facing artifact**. Internal talk must never reach it. 
 - Publishing flow: edit on a **`draft` branch** → review the rendered diff → merge to `main` (the client-facing deploy). Nothing goes straight to `main`.
 - Every update ends with a plain-English changelog grouped **Shipped / Slipped / Scope / New / Deferred** — that's what the reviewer reads at merge time.
 - Version the artifact in the topbar meta and footer (`DRAFT v1.0` → bump on meaningful revisions).
+- Once per quarter, do the **quarter roll** (SPEC §2) as its own reviewed commit — never mixed into a regular content update.
