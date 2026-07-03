@@ -784,6 +784,15 @@
     .today-flag { font-size: 9px; padding: 3px 6px 2px; top: 2px; }
     footer { font-size: 10px; margin-top: 32px; padding-top: 16px; }
   }
+
+  /* Timeline focus: labels stay pinned while the timeline scrolls; rows whose
+     bars are outside the visible window collapse (toggle in the topbar). */
+  .row-label {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+  }
+  .row.win-hidden, details.group.win-hidden { display: none; }
 </style>
 </head>
 <body>
@@ -796,7 +805,7 @@
       <button class="toggle-btn" id="expandAll" type="button">Expand all</button>
       <button class="toggle-btn" id="collapseAll" type="button">Collapse all</button>
     </div>
-    <div class="topbar-meta">FORMAT REFERENCE v1.1 · Q3 Planning · June – Sept</div>
+    <div class="topbar-meta">FORMAT REFERENCE v1.2 · Q3 Planning · June – Sept</div>
   </div>
 
   <div class="title-block">
@@ -1424,6 +1433,91 @@
     document.addEventListener('visibilitychange', function() {
       if (!document.hidden) update();
     });
+  })();
+</script>
+
+<script>
+  // Timeline focus — generic: reads column count and label width from the DOM.
+  // On screens wide enough to show the whole board this never hides anything.
+  (function() {
+    var wrap = document.querySelector('.gantt-wrap');
+    var gantt = document.querySelector('.gantt');
+    if (!wrap || !gantt) return;
+
+    var firstTrack = gantt.querySelector('.row-track');
+    var COLS = firstTrack ? getComputedStyle(firstTrack).gridTemplateColumns.split(' ').length : 16;
+    var focusOn = true;
+
+    function labelW() {
+      return parseInt(getComputedStyle(gantt).getPropertyValue('--label-col'), 10) || 280;
+    }
+
+    function barSpan(row) {
+      if (!row) return null;
+      var bar = row.querySelector('.row-track .bar');
+      if (!bar || !bar.style.gridColumn) return null;
+      var m = bar.style.gridColumn.match(/(\d+)\s*\/\s*(\d+)/);
+      return m ? [parseInt(m[1], 10), parseInt(m[2], 10)] : null;
+    }
+
+    function apply() {
+      var lw = labelW();
+      var colW = (gantt.offsetWidth - lw) / COLS;
+      // the sticky label column covers the first lw px of the viewport
+      var visStart = wrap.scrollLeft;
+      var visEnd = wrap.scrollLeft + wrap.clientWidth - lw;
+      var c1 = Math.floor(visStart / colW) + 1;
+      var c2 = Math.ceil(visEnd / colW);
+
+      document.querySelectorAll('.gantt details.group').forEach(function(group) {
+        var anyVisible = false;
+        group.querySelectorAll(':scope > .row').forEach(function(row) {
+          var span = barSpan(row);
+          var show = !focusOn || !span || (span[0] <= c2 && span[1] - 1 >= c1);
+          row.classList.toggle('win-hidden', !show);
+          if (show) anyVisible = true;
+        });
+        var summarySpan = barSpan(group.querySelector('summary.row'));
+        var headerVisible = !focusOn || anyVisible ||
+          (summarySpan && summarySpan[0] <= c2 && summarySpan[1] - 1 >= c1);
+        group.classList.toggle('win-hidden', !headerVisible);
+      });
+    }
+
+    var raf = null;
+    function schedule() {
+      if (raf) return;
+      raf = requestAnimationFrame(function() { raf = null; apply(); });
+    }
+    wrap.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+
+    var actions = document.querySelector('.topbar-actions');
+    if (actions) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'toggle-btn';
+      btn.textContent = 'Timeline focus: on';
+      btn.addEventListener('click', function() {
+        focusOn = !focusOn;
+        btn.textContent = 'Timeline focus: ' + (focusOn ? 'on' : 'off');
+        apply();
+      });
+      actions.insertBefore(btn, actions.firstChild);
+    }
+
+    // open the board centered on the today line (no-op when everything fits)
+    var line = document.getElementById('todayLine');
+    function centerToday() {
+      if (line && line.style.display !== 'none') {
+        var lw = labelW();
+        var x = parseFloat(line.style.left || '0');
+        wrap.scrollLeft = Math.max(0, x - lw - (wrap.clientWidth - lw) / 2);
+      }
+      apply();
+    }
+    // the main script positions the today line on load; wait two frames
+    requestAnimationFrame(function() { requestAnimationFrame(centerToday); });
   })();
 </script>
 </body>
