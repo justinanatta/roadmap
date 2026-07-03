@@ -6,7 +6,8 @@ Reference implementation: the Llama Naturals roadmap (https://ln-roadmap-anatta.
 
 | File | What it is |
 |---|---|
-| `template.html` | Working sanitized skeleton — every visual pattern, `SETUP:` comments where client specifics go |
+| `index.html` | **The live example** — fictional "Example Co." engagement showing every lane, state, pill, and milestone pattern; this is what Vercel serves when the repo is deployed |
+| `template.html` | Working sanitized skeleton — every visual pattern, `SETUP:` comments where client specifics go; start from this file, not the example |
 | `SPEC.md` | The locked encoding spec: geometry, bar/row/pill semantics, colors, writing rules, guardrails |
 | `NEW_CLIENT.md` | ~30-minute checklist to stand up a new client roadmap |
 | `roadmap.config.example.json` | Per-client config consumed by the Claude skills |
