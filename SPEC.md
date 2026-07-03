@@ -22,7 +22,7 @@ The file is **hand-authored static HTML** — no build step, no framework, no da
 
 The standard board is **quarterly** — most clients are ongoing retainers. The track is a CSS grid: `grid-template-columns: repeat(16, 1fr)` — **2 carryover weeks from the prior quarter + 13 quarter weeks + 1 next-quarter horizon column**. Everything is placed with `grid-column: {startCol} / {endCol}`, and **endCol is exclusive** (a bar spanning weeks 1–2 is `grid-column: 1 / 3`).
 
-- **1 column = 1 week; 1 sprint = 2 weeks = 2 columns.**
+- **1 column = 1 week; 1 sprint = 2 weeks = 2 columns.** If the client's real sprints aren't Monday-aligned (Wednesday starts are common), snap each sprint band to the nearest Monday columns and carry the true dates in the band label — labels are exact, columns approximate.
 - **Columns 1–2 (carryover)** are the last two weeks of the previous quarter, always `prior`-shaded. They exist to hold recently-shipped work — the client should open the board and see things done, not an empty runway.
 - **Columns 3–14** are the six two-week sprints of the quarter. **Sprint numbers continue across quarters** (Sprint 13, 14, … — never reset to 1); that's what says "ongoing relationship."
 - **Column 15** is the quarter's 13th week — the wrap / next-quarter-planning week band.

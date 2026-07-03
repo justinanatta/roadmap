@@ -122,13 +122,14 @@
     border-top: 1.5px solid var(--rule-strong);
     border-bottom: 1.5px solid var(--rule-strong);
     background: var(--ground);
-    margin-top: 44px;
+    margin-top: 12px;
   }
   .gantt {
     --label-col: 280px;
     min-width: 1400px;
     width: 100%;
     position: relative;
+    padding-top: 34px; /* headroom for the today flag — must stay inside .gantt-wrap's overflow clip */
   }
 
   .col-resizer {
@@ -176,7 +177,7 @@
   }
   .today-flag {
     position: absolute;
-    top: -28px;
+    top: 2px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--today);
@@ -786,7 +787,7 @@
     .legend { flex-direction: column; gap: 8px; padding: 16px 12px; }
     .legend-group { border-right: none !important; padding-right: 0; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
     .legend-group:last-child { border-bottom: none; padding-bottom: 0; }
-    .today-flag { font-size: 9px; padding: 3px 6px 2px; top: -22px; }
+    .today-flag { font-size: 9px; padding: 3px 6px 2px; top: 2px; }
     footer { font-size: 10px; margin-top: 32px; padding-top: 16px; }
   }
 </style>
