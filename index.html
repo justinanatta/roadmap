@@ -349,20 +349,32 @@
   }
   .sprint-row .row-track {
     background: var(--ground-elev);
-    min-height: 32px;
+    min-height: 42px;
   }
   .sprint-band {
     grid-row: 1;
     align-self: stretch;
     display: flex;
+    flex-direction: column;
+    gap: 2px;
     align-items: center;
     justify-content: center;
+    padding: 5px 4px;
+    text-align: center;
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
     color: var(--ink-mid);
     border-right: 1px solid var(--rule);
     font-weight: 600;
+  }
+  .sprint-dates {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    opacity: 0.85;
+    white-space: nowrap;
   }
   .sprint-band.prior {
     background: rgba(74, 80, 75, 0.16);
@@ -453,7 +465,7 @@
     color: var(--ink-mid);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    white-space: nowrap;
+    white-space: normal;
     text-align: center;
     line-height: 1.2;
     font-weight: 500;
@@ -813,13 +825,13 @@
       <div class="row sprint-row">
         <div class="row-label">Sprint</div>
         <div class="row-track">
-          <div class="sprint-band prior" style="grid-column: 1 / 3;">Sprint 12 · Jun 15 – Jun 26</div>
-          <div class="sprint-band tint" style="grid-column: 3 / 5;">Sprint 13 · Jun 29 – Jul 10</div>
-          <div class="sprint-band tint-alt" style="grid-column: 5 / 7;">Sprint 14 · Jul 13 – Jul 24</div>
-          <div class="sprint-band tint" style="grid-column: 7 / 9;">Sprint 15 · Jul 27 – Aug 7</div>
-          <div class="sprint-band tint-alt" style="grid-column: 9 / 11;">Sprint 16 · Aug 10 – Aug 21</div>
-          <div class="sprint-band tint" style="grid-column: 11 / 13;">Sprint 17 · Aug 24 – Sep 4</div>
-          <div class="sprint-band tint-alt" style="grid-column: 13 / 15;">Sprint 18 · Sep 7 – Sep 18</div>
+          <div class="sprint-band prior" style="grid-column: 1 / 3;">Sprint 12<span class="sprint-dates">Jun 15 – Jun 26</span></div>
+          <div class="sprint-band tint" style="grid-column: 3 / 5;">Sprint 13<span class="sprint-dates">Jun 29 – Jul 10</span></div>
+          <div class="sprint-band tint-alt" style="grid-column: 5 / 7;">Sprint 14<span class="sprint-dates">Jul 13 – Jul 24</span></div>
+          <div class="sprint-band tint" style="grid-column: 7 / 9;">Sprint 15<span class="sprint-dates">Jul 27 – Aug 7</span></div>
+          <div class="sprint-band tint-alt" style="grid-column: 9 / 11;">Sprint 16<span class="sprint-dates">Aug 10 – Aug 21</span></div>
+          <div class="sprint-band tint" style="grid-column: 11 / 13;">Sprint 17<span class="sprint-dates">Aug 24 – Sep 4</span></div>
+          <div class="sprint-band tint-alt" style="grid-column: 13 / 15;">Sprint 18<span class="sprint-dates">Sep 7 – Sep 18</span></div>
           <div class="sprint-band tint" style="grid-column: 15 / 16;">Q4 Planning</div>
           <div class="sprint-band renewal-band" style="grid-column: 16 / 17;">Q4 →</div>
         </div>
