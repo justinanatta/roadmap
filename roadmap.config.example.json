@@ -2,9 +2,18 @@
   "client_name": "Sample Client",
   "client_key": "sample",
   "html_file": "index.html",
-  "jira_org": "YOURORG.atlassian.net",
-  "jira_prefix": "PROJ-",
-  "transcripts_dir": "~/Documents/sampleclient/project/transcripts/",
   "live_url": "https://sample-roadmap.vercel.app/",
-  "review_branch": "draft"
+  "review_branch": "draft",
+  "transcripts_dir": "~/Documents/sampleclient/project/transcripts/",
+  "jira": {
+    "site": "anatta-io.atlassian.net",
+    "project": "PROJ",
+    "visible_marker": "label:roadmap",
+    "lanes": {
+      "cart": "PROJ-53",
+      "plp": "PROJ-59",
+      "experiments": "PROJ-61",
+      "implementations": "PROJ-101"
+    }
+  }
 }

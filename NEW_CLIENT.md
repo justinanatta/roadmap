@@ -41,7 +41,7 @@ This repo ships two skills in `.claude/commands/`:
 - `/roadmap-new` — walks Claude through steps 1–3 above interactively.
 - `/roadmap-update <transcript-or-notes>` — updates the roadmap from a meeting transcript or notes, enforcing SPEC encoding + guardrails, and ends with a merge-review changelog.
 
-Both read client specifics from `roadmap.config.json` (copy `roadmap.config.example.json`, fill it in, commit it).
+Both read client specifics from `roadmap.config.json` (copy `roadmap.config.example.json`, fill it in, commit it). To let `/roadmap-update` pull tasks straight from your Jira board, do the 15-minute setup in `JIRA_SETUP.md` (label client-visible tickets `roadmap`, parent them to lane epics, fill the config's `jira` section).
 
 ## 7. Full automation (optional, advanced)
 

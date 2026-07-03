@@ -53,7 +53,7 @@ Once a quarter, you "roll" the board to the new quarter — new dates, new colum
 If you use Claude Code, this repo includes two commands that do the heavy lifting:
 
 - **`/roadmap-new`** — Claude interviews you (client name, quarter, sprint numbers, what work exists) and builds the whole starting file for you.
-- **`/roadmap-update`** — you give Claude your meeting transcript or notes, and it updates the roadmap for you: moves the bars, updates the labels, and writes you a summary of what it changed. It knows all the format rules and all the safety rules.
+- **`/roadmap-update`** — you give Claude your meeting transcript or notes — or just say `jira` — and it updates the roadmap for you: moves the bars, updates the labels, and writes you a summary of what it changed. It knows all the format rules and all the safety rules. The Jira option reads your actual board (tickets you've labeled `roadmap`) and proposes the changes from there — see `JIRA_SETUP.md` for the 15-minute, one-time setup.
 
 Either way, YOU still review the draft before merging. Claude prepares; you approve.
 
@@ -74,7 +74,8 @@ The roadmap is a **client-facing page**. The client reads it. Their boss reads i
 | `template.html` | Your starting file. Copy it, rename it `index.html` in your client's repo, and fill in the `SETUP` spots. |
 | `NEW_CLIENT.md` | The step-by-step checklist for setting up a new client (the long version of the steps above). |
 | `SPEC.md` | The rulebook: what every color, bar, and label means, and the do-not-cross safety rules. Read it once; look things up later. |
-| `roadmap.config.example.json` | A small settings file the Claude commands read (client name, Jira project, etc.). Copy it, fill it in, commit it. |
+| `roadmap.config.example.json` | A small settings file the Claude commands read (client name, Jira project, lane↔epic map). Copy it, fill it in, commit it. |
+| `JIRA_SETUP.md` | How to connect your Jira board as the task source: label client-visible tickets `roadmap`, map your lane epics, done. |
 | `.claude/commands/` | The two Claude commands (`/roadmap-new`, `/roadmap-update`) described above. They come along automatically when you clone the repo. |
 
 ## Stuck?

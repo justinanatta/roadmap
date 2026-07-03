@@ -1,14 +1,28 @@
 ---
-description: Update this client's roadmap gantt HTML from a meeting transcript, preserving the locked encoding. Usage: /roadmap-update [transcript-path]
+description: Update this client's roadmap gantt HTML from a meeting transcript and/or the client's Jira board, preserving the locked encoding. Usage: /roadmap-update [transcript-path | jira]
 allowed-tools: Read, Edit, Grep, Glob
 ---
 
-You are the PM responsible for the outcome of this client account. Update the roadmap gantt to reflect the latest meeting. Work with restraint: change only what the transcript justifies, preserve every encoding convention, and leave a clear trail.
+You are the PM responsible for the outcome of this client account. Update the roadmap gantt to reflect the latest state of the work. Work with restraint: change only what the source justifies, preserve every encoding convention, and leave a clear trail.
 
 ## Inputs
 
-- **Client config:** read `roadmap.config.json` in the repo root (client name, HTML file, Jira org/prefix, transcripts dir, live URL, review branch). If it's missing, stop and say so — don't guess paths.
-- **Transcript:** `$1` if provided; otherwise the most recent file in the config's `transcripts_dir` that isn't already reflected in the roadmap.
+- **Client config:** read `roadmap.config.json` in the repo root (client name, HTML file, Jira section, transcripts dir, live URL, review branch). If it's missing, stop and say so — don't guess paths.
+- **Source:** `$1` decides the mode:
+  - A file path → **transcript mode**: update from that meeting transcript.
+  - `jira` → **Jira mode**: sync from the client's Jira board (below).
+  - Omitted → transcript mode on the most recent file in the config's `transcripts_dir` that isn't already reflected in the roadmap; if the config has no `transcripts_dir`, fall back to Jira mode.
+
+## Jira mode (requires the Atlassian connector; setup conventions in JIRA_SETUP.md)
+
+1. From the config's `jira` section take `site`, `project`, `visible_marker`, and the `lanes` epic map. Query the project for issues matching the visible marker (e.g. `project = X AND labels = roadmap`), updated recently.
+2. **Fail closed on visibility**: only marker-matched issues may appear on the board. Never import unlabeled tickets, Design Stories, or Sub-tasks unless explicitly marked.
+3. Map each issue using the org defaults: status Dev Done/Design Done/Closed/Done → `done`; Dev In Progress/QA In Progress/Ready for QA → solid in-flight; Dev To Do/Open → solid if a sprint/due date is known, else `proposed`. Pills: Bug → BUG; Discovery Story or `[Spike]` title → SPIKE; `[Test]` title or parent epic = experiments lane → TEST; otherwise IMPL. Lane = the config lane whose epic is the issue's parent (no mapped parent → list it for the PM to place; don't guess).
+4. Diff against the current board: statuses that changed, new marker-labeled tickets, tickets that vanished. Propose bar edits for each.
+5. **Rewrite every title into client-safe language** — Jira summaries are written for the team. Strip prefixes, internal phrasing, and anything the guardrails forbid (e.g. "[Bug] PDP Timeline Copy: Wrong Claims on 9 Products" → "PDP timeline copy fix").
+6. Where Jira can't answer **timing** (no sprint/due date), ask the PM rather than inventing a placement.
+
+When both a fresh transcript and Jira are available, use Jira for state and the transcript for narrative (why things moved, decisions, client-facing framing) — the transcript wins on wording, Jira wins on status.
 
 ## Encoding — carry forward exactly (full spec: SPEC.md in this repo)
 
