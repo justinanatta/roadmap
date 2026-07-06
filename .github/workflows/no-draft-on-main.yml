@@ -1,0 +1,25 @@
+# Hard backstop for the draft-lane model (SPEC §4, §6, §7).
+# A `draft`-tagged swimlane is internal-only and must NEVER reach the
+# client-facing deploy. This check fails any push or PR to `main` whose
+# index.html still contains one. Make it a required status check in branch
+# protection so even a manual GitHub merge can't leak a draft lane.
+name: no-draft-on-main
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if index.html contains a draft lane
+        run: |
+          if grep -nE '<details[^>]*class="[^"]*\bdraft\b[^"]*"' index.html; then
+            echo "::error::index.html contains a draft-tagged swimlane. Draft lanes are internal-only and must be promoted or dropped before publishing to main (run /roadmap-publish, see SPEC §7)."
+            exit 1
+          fi
+          echo "No draft lanes found — board is client-clean."

@@ -19,6 +19,7 @@
     --signal: #8B3D14;        /* Deep vermillion */
     --counter: #1F5E45;       /* Deep bluish green */
     --today: #64748B;         /* Soft slate, Asana-style */
+    --draft: #5D5470;         /* Muted violet-graphite — internal-only draft lanes; outside the lane palette, never signal-red */
 
     /* Dark muted Okabe-Ito: same hue families for colorblind distinguishability, darker luminance for white-text contrast (WCAG AA+) */
     --cart: #2C5266;          /* Dark teal-blue */
@@ -231,6 +232,33 @@
   }
   details:not([open]) > summary .row-label::before {
     transform: rotate(-90deg);
+  }
+
+  /* DRAFT LANE (internal-only). A whole swimlane staged internally; it must
+     NEVER reach main (see SPEC §6). Shows only on the draft branch preview. */
+  .group.draft {
+    border-left: 3px solid var(--draft);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 7px,
+      rgba(93, 84, 112, 0.06) 7px,
+      rgba(93, 84, 112, 0.06) 9px
+    );
+  }
+  .group.draft > summary .row-label { color: var(--draft); }
+  .group.draft > summary .row-label::after {
+    content: 'DRAFT · INTERNAL';
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: white;
+    background: var(--draft);
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 10px;
+    flex-shrink: 0;
   }
 
   .row {

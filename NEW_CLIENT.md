@@ -38,12 +38,22 @@ Vercel → New Project → import the repo → framework preset "Other", no buil
 
 All content updates happen on the `draft` branch; Vercel automatically gives it a stable branch-preview URL. Review the rendered preview, then merge `draft` → `main` to publish. Nothing edits `main` directly — this is what makes automated/delegated edits safe.
 
+**Draft lanes (internal-only staging).** A whole swimlane can be marked internal by adding `draft` to the group — `<details class="group draft" open>` (SPEC §4). It shows on the `draft` preview with a `DRAFT · INTERNAL` badge but must never reach `main`. Use it for net-new workstreams you're floating before confirming with the client. Before publishing, run `/roadmap-publish <client>`: it walks each draft lane and makes you **promote** it (remove the `draft` class → client-facing) or **drop** it, and refuses to publish while any remain.
+
+## 5a. Lock the guard (one-time, ~5 min)
+
+The draft-lane gate is enforced two ways; set up the hard one once per repo:
+
+1. **CI check** — `.github/workflows/no-draft-on-main.yml` ships in this repo. It fails any push/PR to `main` whose `index.html` still contains a draft-tagged group. Nothing to configure; it runs on push once the repo is on GitHub.
+2. **Branch protection** — GitHub → repo Settings → Branches → add a rule for `main` → require the status check **`no-draft-on-main`** to pass before merging. This is what makes it fail-closed: even a manual UI merge of a draft lane is blocked, not just Claude-driven merges.
+
 ## 6. Editing with Claude (optional but recommended)
 
 This repo ships two skills in `.claude/commands/`:
 
 - `/roadmap-new` — walks Claude through steps 1–3 above interactively.
-- `/roadmap-update <transcript-or-notes>` — updates the roadmap from a meeting transcript or notes, enforcing SPEC encoding + guardrails, and ends with a merge-review changelog.
+- `/roadmap-update <transcript-or-notes>` — updates the roadmap from a meeting transcript or notes, enforcing SPEC encoding + guardrails, and ends with a merge-review changelog. Unconfirmed net-new workstreams land in a `draft` lane.
+- `/roadmap-publish <client>` — the pre-merge gate: resolves every `draft` lane (promote / drop / hold) so the board is client-clean before you merge `draft` → `main`.
 
 Both read client specifics from `roadmap.config.json` (copy `roadmap.config.example.json`, fill it in, commit it — `live_url` can stay `""` until the Vercel deploy in step 4 exists). To let `/roadmap-update` pull tasks straight from your Jira board, do the 15-minute setup in `JIRA_SETUP.md` (label client-visible tickets `roadmap`, parent them to lane epics, fill the config's `jira` section).
 

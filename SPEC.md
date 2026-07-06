@@ -14,7 +14,7 @@ The file is **hand-authored static HTML** — no build step, no framework, no da
 | Sprint band row | `.row.sprint-row` | One `.sprint-band` per sprint, `Sprint N · Mon D – Mon D` |
 | Week label row | `.row.week-row` | One `.week-label` per column (Mondays) |
 | Milestone row | `.row.milestone-row` | Release diamonds + quarter-boundary (or contract-end) marker |
-| Swimlane groups | `details.group` | One per lane; `summary` = lane header row, children = work items |
+| Swimlane groups | `details.group` | One per lane; `summary` = lane header row, children = work items. A group may carry `draft` (internal-only staging — visible on the draft preview, never merges to `main`; see §4, §6, §7) |
 | Legend note + legend | `.legend-note`, `.legend` | Keep in sync with the lanes/pills actually used |
 | Footer | `footer` | `Working draft. vX.X · Client × Anatta · …` |
 
@@ -106,6 +106,20 @@ The palette is a darkened Okabe-Ito set: colorblind-distinguishable hue families
 - `row-meta` is a short italic status line — neutral, outcome-focused (see guardrails). Hidden on mobile, so never put load-bearing info only there.
 - Milestones: `.milestone` with a `.diamond` — solid green `release` = shipped, outlined `release projected` (+ `projected` on the wrapper, `~` before the date) = projected, big red `renewal` = quarter boundary (or contract end on bounded engagements).
 
+**Draft lanes (internal-only staging).** A whole swimlane may be staged internally by adding `draft` to the group wrapper:
+
+```html
+<details class="group draft" open>
+  <summary class="row group-row">
+    <div class="row-label">New Workstream Name <span class="group-id">draft · pending client confirmation</span></div>
+    <div class="row-track"> {16 cells} {epic bar} </div>
+  </summary>
+  … normal rows …
+</details>
+```
+
+It renders with a `DRAFT · INTERNAL` badge, a violet-graphite left border + hatch (`--draft`, deliberately outside the lane palette and never signal-red). Rows and bars inside use the normal lane/state classes — only the wrapper is flagged. A draft lane is the **only** place unconfirmed/internal work may live, it is visible on the `draft` branch preview, and it **must never reach `main`**: before publishing you either *promote* it (remove the `draft` class, after re-checking its contents against §6) or delete it. Use draft lanes only for net-new workstreams not yet confirmed with the client — an item added to an existing public lane is a normal edit, not a draft. See §6 (guardrail) and §7 (publishing flow).
+
 ## 5. Writing rules
 
 - **Full words, no shortforms** — "Sprint 5", never "S5"; "Investigation", never "Invest.".
@@ -130,10 +144,13 @@ The roadmap is a **client-facing artifact**. Internal talk must never reach it. 
 
 **Fail closed:** if it's ambiguous whether something is client-safe, leave it out. Losing a minor update is always cheaper than leaking internal talk.
 
+**Draft lanes are the one staging exception — and they never ship.** Unconfirmed work may be staged in a `draft` lane (§4) on the `draft` branch, but it must be promoted or removed before merging to `main`. A `draft`-tagged group in the client-facing file is a leak; the publishing flow (§7) and the `no-draft-on-main` CI check both block it. A draft lane hides an unfinished *section* from the client — it is **not** a license to write internal commentary or named people inside it, because on promotion that text ships. Everything above applies to draft-lane contents too.
+
 ## 7. Update discipline
 
 - Edits are **surgical**: touch only the bars/rows/metas the source (meeting, ticket) justifies. Never restructure the page, rename lanes, or change CSS during a content update.
 - Publishing flow: edit on a **`draft` branch** → review the rendered diff → merge to `main` (the client-facing deploy). Nothing goes straight to `main`.
+- Before merging, run **`/roadmap-publish`**: it finds any `draft` lanes (§4) and makes you promote, hold, or drop each one — it will not publish while a draft lane remains, then emits the changelog. The **`no-draft-on-main`** GitHub Action is the hard backstop: with branch protection it fails any push/PR to `main` that still contains a `draft`-tagged group, so even a manual merge can't leak one.
 - Every update ends with a plain-English changelog grouped **Shipped / Slipped / Scope / New / Deferred** — that's what the reviewer reads at merge time.
 - Version the artifact in the topbar meta and footer (`DRAFT v1.0` → bump on meaningful revisions).
 - Once per quarter, do the **quarter roll** (SPEC §2) as its own reviewed commit — never mixed into a regular content update.
