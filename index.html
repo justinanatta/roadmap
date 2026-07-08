@@ -1418,8 +1418,12 @@
         var labelW = parseInt(getComputedStyle(gantt).getPropertyValue('--label-col'), 10) || 280;
         var ganttW = gantt.offsetWidth;
         var timelineW = ganttW - labelW;
-        line.style.left = (labelW + timelineW * pct) + 'px';
+        var left = labelW + timelineW * pct;
+        line.style.left = left + 'px';
         line.style.display = 'block';
+        // hide the line while it sits over the pinned label column (scrolled past today)
+        var wrap = gantt.parentElement;
+        line.style.visibility = (left - wrap.scrollLeft < labelW) ? 'hidden' : 'visible';
       }
     }
 
@@ -1488,6 +1492,9 @@
       update();
       bindControls();
       scheduleUpdate();
+
+      var wrap = document.querySelector('.gantt-wrap');
+      if (wrap) wrap.addEventListener('scroll', scheduleUpdate, { passive: true });
 
       var gantt = document.querySelector('.gantt');
       if (gantt && typeof ResizeObserver !== 'undefined') {
