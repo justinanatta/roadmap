@@ -50,10 +50,11 @@ Once a quarter, you "roll" the board to the new quarter — new dates, new colum
 
 ## The easy way with Claude
 
-If you use Claude Code, this repo includes two commands that do the heavy lifting:
+If you use Claude Code, this repo includes three commands that do the heavy lifting:
 
 - **`/roadmap-new`** — Claude interviews you (client name, quarter, sprint numbers, what work exists) and builds the whole starting file for you.
 - **`/roadmap-update`** — you give Claude your meeting transcript or notes — or just say `jira` — and it updates the roadmap for you: moves the bars, updates the labels, and writes you a summary of what it changed. It knows all the format rules and all the safety rules. The Jira option reads your actual board (tickets you've labeled `roadmap`) and proposes the changes from there — see `JIRA_SETUP.md` for the 15-minute, one-time setup.
+- **`/roadmap-publish`** — run it before merging: it finds any internal draft lanes still on the board and makes you promote or drop each one, so nothing internal can slip onto the client's page.
 
 Either way, YOU still review the draft before merging. Claude prepares; you approve.
 
@@ -76,7 +77,20 @@ The roadmap is a **client-facing page**. The client reads it. Their boss reads i
 | `SPEC.md` | The rulebook: what every color, bar, and label means, and the do-not-cross safety rules. Read it once; look things up later. |
 | `roadmap.config.example.json` | A small settings file the Claude commands read (client name, Jira project, lane↔epic map). Copy it, fill it in, commit it. |
 | `JIRA_SETUP.md` | How to connect your Jira board as the task source: label client-visible tickets `roadmap`, map your lane epics, done. |
-| `.claude/commands/` | The two Claude commands (`/roadmap-new`, `/roadmap-update`) described above. They come along automatically when you clone the repo. |
+| `.claude/commands/` | The three Claude commands (`/roadmap-new`, `/roadmap-update`, `/roadmap-publish`) described above. They come along automatically when you clone the repo. |
+| `.vercelignore` | Keeps the docs, configs, command files, and sync data off the public deploy — visitors get the board, not the paperwork. Copy it to your client repo with the rest. |
+
+## What's coming next (v2)
+
+The commands today prepare and update your board. The next version makes it *harder to ever show a wrong number* and easier to run for any client. Planned — designed, not yet built (full spec in `DESIGN_v2_completion_and_refresh.md`):
+
+- **On-demand Jira % refresh** — running `/roadmap-update` will also pull current story counts per epic and refresh the completion numbers, each with its receipt ("11 of 13 stories closed"). A scheduled, automatic version comes later — and even then it only ever prepares a draft.
+- **A data-quality gate** — before writing a number, it checks your Jira for the messy patterns that cause wrong percentages (epics with no stories, work that's done but never marked done, orphaned tickets) and *holds any number it can't trust* for you to confirm, instead of writing a confident-but-wrong figure into the draft.
+- **An optional completion view** — a richer board for complex programs: per-initiative completion, split by who owns it (Anatta, the client, or both), with the evidence behind every number one click away.
+- **A deep audit mode** — for high-stakes moments (a leadership or client review), cross-check the board against Jira, the latest meeting, the client's own tracker, and Confluence in one pass, and get a plain-English reconciliation of what's off. The audit report is internal-only and lives outside the repo, so it can never ride a publish onto the client page.
+- **Packaged as an app** — spinning up and managing a client roadmap without touching git or Vercel, with all boards in one place (the portfolio view) on org-owned hosting with proper access control. The "rinse and repeat" version.
+
+The rule stays the same at every phase: **Claude prepares, you review the draft, you publish.** Automation never gets a publish button.
 
 ## Stuck?
 
