@@ -1,0 +1,6 @@
+*.md
+.claude/
+.github/
+roadmap.config.json
+roadmap.config.example.json
+.roadmap/

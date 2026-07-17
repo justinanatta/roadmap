@@ -24,7 +24,7 @@ Add the label **`roadmap`** to every ticket that belongs on the client's board.
 
 Each swimlane on your roadmap (e.g. "Loyalty Program", "PDP Redesign") should be one **epic** in Jira, and every `roadmap`-labeled ticket should have one of those epics as its parent.
 
-- If your project already uses epics this way (like LN does), you're done.
+- If your project already uses epics this way (many projects do), you're done.
 - If your tickets are loose (no parents), spend the 15 minutes: create one epic per lane, drag your roadmap tickets under them. This is good Jira practice anyway.
 - If your epics are **status buckets** ("In Progress", "On Hold") or big discovery themes with no children, they can't drive lanes — create real lane epics instead. A `roadmap`-labeled ticket without a mapped parent still syncs, but Claude will ask you which lane it belongs in every time.
 - Lanes with no epic yet are fine: leave them out of the config and place those rows yourself.
