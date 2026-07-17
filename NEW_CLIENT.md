@@ -49,14 +49,15 @@ The draft-lane gate is enforced two ways; set up the hard one once per repo:
 
 ## 6. Editing with Claude (optional but recommended)
 
-This repo ships two skills in `.claude/commands/`:
+This repo ships four skills in `.claude/commands/`:
 
 - `/roadmap-new` — walks Claude through steps 1–3 above interactively.
-- `/roadmap-update <transcript-or-notes>` — updates the roadmap from a meeting transcript or notes, enforcing SPEC encoding + guardrails, and ends with a merge-review changelog. Unconfirmed net-new workstreams land in a `draft` lane.
-- `/roadmap-publish <client>` — the pre-merge gate: resolves every `draft` lane (promote / drop / hold) so the board is client-clean before you merge `draft` → `main`.
+- `/roadmap-update [transcript-path | jira]` — updates the roadmap from a meeting transcript or your Jira board, enforcing SPEC encoding + guardrails, and ends with a merge-review changelog. Unconfirmed net-new workstreams land in a `draft` lane.
+- `/roadmap-publish` — the pre-merge gate: resolves every `draft` lane (promote / drop / hold) so the board is client-clean before you merge `draft` → `main`.
+- `/roadmap-audit` — the read-only accuracy deep-check: reconciles the board against Jira, the latest transcript, the client's own tracker, and Confluence/Slack; its internal-only report saves outside the repo.
 
-Both read client specifics from `roadmap.config.json` (copy `roadmap.config.example.json`, fill it in, commit it — `live_url` can stay `""` until the Vercel deploy in step 4 exists). To let `/roadmap-update` pull tasks straight from your Jira board, do the 15-minute setup in `JIRA_SETUP.md` (label client-visible tickets `roadmap`, parent them to lane epics, fill the config's `jira` section).
+All of them read client specifics from `roadmap.config.json` (copy `roadmap.config.example.json`, fill it in, commit it — `live_url` can stay `""` until the Vercel deploy in step 4 exists). To let `/roadmap-update` pull tasks straight from your Jira board, do the 15-minute setup in `JIRA_SETUP.md` (label client-visible tickets `roadmap`, parent them to lane epics, fill the config's `jira` section).
 
 ## 7. Full automation (optional, advanced)
 
-Justin's LN setup goes further: Granola auto-records the meeting, a daemon extracts the verbatim transcript over CDP, and a watcher runs the update headlessly on `draft` with a macOS notification for review. That stack is Mac-specific and lives outside this repo — see `~/Documents/PMO/HANDOFF_granola_roadmap_automation.md` (ask Justin) before attempting to replicate it. The roadmap format works fine with manual transcripts.
+One production setup goes further: meetings auto-record, a daemon extracts the verbatim transcript, and a watcher runs the update headlessly on `draft` with a desktop notification for review. That stack is Mac-specific and lives outside this repo — ask the maintainer before attempting to replicate it. The roadmap format works fine with manual transcripts.

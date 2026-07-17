@@ -14,6 +14,11 @@
       "plp": "PROJ-59",
       "experiments": "PROJ-61",
       "implementations": "PROJ-101"
-    }
-  }
+    },
+    "progress": [],
+    "api_token_ref": null
+  },
+  "overlay": { "enabled": false, "drawer_links": "none" },
+  "deep_sources": { "tracker_file": null, "confluence_space": null, "slack_channels": [] },
+  "audit_output_dir": "../sample-roadmap-audits/"
 }
