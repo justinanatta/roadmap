@@ -50,14 +50,14 @@ Embedded as `<script type="application/json" id="progress-data">…</script>`, p
 }
 ```
 
-Field contract: `anatta.pct` 0–100 int; `anatta.basis` = human-readable receipt (required); `anatta.src` = `"jira"` (derived, Part B) or `"pm"` (human estimate — renderer must visibly label it "PM estimate"); optional `anatta.held: true` = the gate declined to refresh this value (renderer marks it unverified); `weight` = Anatta's share of the joint blend, int 0–100, default 60; `items[]` = the open-items receipts list (NOT the source of `anatta.pct`), each with `owner` ∈ `anatta|client`, `state` ∈ `not_started|in_progress|done` (the 3-state rubric — clients report coarse status), `size` = relative weight (positive int), optional `ticket`, `note`, `blocked: true`. `shipped` entries render as done with the given caption and no meters.
+Field contract: `anatta.pct` 0–100 int; `anatta.basis` = human-readable receipt (required); `anatta.src` = `"jira"` (derived, Part B) or `"pm"` (human estimate — renderer must visibly label it "PM estimate"); optional `anatta.held: true` = the gate declined to refresh this value — set on ANY hold (underived, implausible delta); the renderer marks chip and meter unverified and appends "— held" to the basis, while the changelog carries the specific reason; `weight` = Anatta's share of the joint blend, int 0–100, default 60; `items[]` = the open-items receipts list (NOT the source of `anatta.pct`), each with `owner` ∈ `anatta|client`, `state` ∈ `not_started|in_progress|done` (the 3-state rubric — clients report coarse status), `size` = relative weight (positive int), optional `ticket`, `note`, `blocked: true`. `shipped` entries render as done with the given caption and no meters.
 
 ### 2.2 Calculation contract (normative — the build must not reinvent this)
 
 - **Client %** = size-weighted mean over `items` with `owner:"client"`, mapping state `not_started→0`, `in_progress→50`, `done→100`. No client items → client meter omitted.
 - **Joint %** = `round(weight/100 × anatta.pct + (100−weight)/100 × client%)`, half-up. Client % enters the blend unrounded; round once, at the end. No client items → joint = `anatta.pct`.
-- **Chip** = `{joint}% · with {anatta|client|both}` — the "with" party = whoever is still open: the client side is open while any `owner:"client"` item is non-done; the Anatta side is open while `anatta.pct < 100` **or** any `owner:"anatta"` item is non-done (both open → "both"). `shipped` rows render a muted `100%`. Any item `blocked:true` → chip phrase renders in the signal treatment and the item shows its neutral `note` (SPEC §6 wording rules apply — status, never a story about a person).
-- **Meters/basis**: Anatta meter shows `anatta.basis` verbatim; client meter's basis is auto-derived ("2 items: 1 in progress · 1 not started — client-reported"); joint basis = "weighted blend {weight}/{100−weight}".
+- **Chip** = `{joint}% · with {anatta|client|both}` — the "with" party = whoever is still open: the client side is open while any `owner:"client"` item is non-done; the Anatta side is open while `anatta.pct < 100` **or** any `owner:"anatta"` item is non-done (both open → "both"). Neither side open (everything done but not yet marked `shipped`) → the chip shows just `{joint}%`, no "with" phrase. `shipped` rows render a muted `100%`. Any item `blocked:true` → chip phrase renders in the signal treatment and the item shows its neutral `note` (SPEC §6 wording rules apply — status, never a story about a person).
+- **Meters/basis**: Anatta meter shows `anatta.basis` verbatim; client meter's basis is auto-derived ("2 items: 1 in progress · 1 not started (client-reported)"); joint basis = "weighted blend {weight}/{100−weight}".
 - **Lane rollup** = unweighted mean of member joint %s. A lane with zero overlay members gets **no rollup** — never fabricate. A PM may override per lane via `groupOverrides`, keyed by the **lane color class** (stable, unlike visible lane names), value `{ "pct": 0–100, "basis": "why" }` — both required; an override replaces the computed rollup and renders its basis. `shipped` entries are excluded from rollups — a lane of old wins shouldn't read 100% forever.
 - **Client-state changes are propose-then-approve, never automatic.** Automation may *propose* an item-state flip only with an evidence quote (transcript/channel) shown to the PM; the PM approves; the verbatim quote stays in the internal changelog, and the `note` carries a neutral, client-safe paraphrase with the date ("client confirmed Jul 3"). This is a hard rule: the client meter is client-reported truth, not inferred.
 
@@ -97,12 +97,12 @@ The gate is **per-initiative**: one bad initiative never blocks the others. Only
 
 | Condition detected | Action |
 |---|---|
-| Rollup root has **0 child stories** | No derived % — never fabricate. Existing entry: keep the old value and set `"held": true` (renderer shows the unverified marker; basis gains "— held: underived"). New entry: require `src:"pm"` + basis. |
+| Rollup root has **0 child stories** | No derived % — never fabricate. Existing entry: keep the old value and set `"held": true` (renderer shows the unverified marker; basis gains "— held"; changelog says why). New entry: require `src:"pm"` + basis. |
 | All children done but root not transitioned | Derive from stories (stories win); flag the root for hygiene in the changelog. |
 | `level` mismatch (children are epics, not stories) | Block that initiative's write; tell the PM to fix `level`. |
 | Orphan stories (no parent) among `visible_marker`-eligible issues | Never counted; report the total in the changelog as a coverage warning. Project-wide orphan counts are internal diagnostics only — they don't belong in a client repo's changelog. |
 | A story counted under two roots | Block both initiatives' writes; ask the PM. |
-| **Implausible delta** — \|new − last\| > 30 pts | Hold that initiative: the new number is **not written** and its baseline does not advance. The changelog shows old → proposed; only an explicit PM confirmation writes the value (and only then does `.roadmap/sync-state.json` advance). The rest of the run proceeds. |
+| **Implausible delta** — \|new − last\| > 30 pts | Hold that initiative: the new number is **not written**, its baseline does not advance, and the kept value gets `held: true`. The changelog shows old → proposed; only an explicit PM confirmation writes the value (and only then does `.roadmap/sync-state.json` advance). The rest of the run proceeds. |
 
 Last-run state for the delta check persists in `.roadmap/sync-state.json` (per-initiative `{pct, done, total, ts}`), committed on the review branch and excluded from deploys via `.vercelignore`. It may contain **only** data already visible on the deployed board (initiative keys, counts, dates — exactly what the basis lines show), because the Git side of these repos can be public; nothing more sensitive ever goes in it. Baselines advance only when a value is actually written. First run (no prior state): all values write, and the changelog leads with "first sync — no baseline, verify manually."
 
@@ -112,7 +112,7 @@ A clean structural pass is **necessary but not sufficient** — the changelog mu
 
 ## 4. Part C — Deep multi-source audit
 
-`/roadmap-audit` (repo-local, like every other command; optional `--sources` filter). For high-stakes moments. Cross-checks the board against: Jira (3.1 model) + the newest transcript in `transcripts_dir` + the client's own tracker + Confluence/Slack, using per-source adapters configured in:
+`/roadmap-audit` (repo-local, like every other command; optional `--sources` filter). For high-stakes moments. A first runnable version ships alongside this spec (`.claude/commands/roadmap-audit.md`) — the same procedure, executable interactively in a connector-equipped session today; the build session hardens it. Cross-checks the board against: Jira (3.1 model) + the newest transcript in `transcripts_dir` + the client's own tracker + Confluence/Slack, using per-source adapters configured in:
 
 ```json
 "deep_sources": {
@@ -124,7 +124,7 @@ A clean structural pass is **necessary but not sufficient** — the changelog mu
 
 Sources run independently (parallel where the platform supports subagents); an unavailable source is **skipped with an explicit "source unavailable" line** — never silently. Precedence: the client's own tracker wins on client-side status; Jira wins on our side; the transcript wins on wording/why; Confluence is checked for *staleness against the board*, not treated as truth.
 
-Output: a reconciliation report — per initiative: understated / overstated / false / stale, ranked by client-facing impact, with the data-quality evidence — written to `audit_output_dir` (default `../<repo-name>-audits/<date>/`, i.e. **outside the repo** — the command canonicalizes the path and refuses any location at or under the repo root). Audit output is never committed: it contains internal signal by construction, and anything committed here can end up on the public deploy (§0).
+Output: a reconciliation report — per initiative: MATCHES / STALE-DRIFTED / UNDERSTATED / OVERSTATED / FALSE / CONFLICT / UNVERIFIABLE, ranked by client-facing impact, with the data-quality evidence — written into a dated subfolder of `audit_output_dir` (default `../<repo-name>-audits/`, i.e. **outside the repo** — the command canonicalizes the path, refuses any location at or under the repo root, and creates `<date>/` inside it). Audit output is never committed: it contains internal signal by construction, and anything committed here can end up on the public deploy (§0).
 
 ## 5. Part D — Client-safe vs. internal split
 
@@ -147,10 +147,10 @@ Everything except hosting/auth is a thin layer over the existing repo model; the
 "overlay": { "enabled": false, "drawer_links": "none" },
 "jira":    { "progress": [], "api_token_ref": "ENV_VAR_NAME" },
 "deep_sources": { "tracker_file": null, "confluence_space": null, "slack_channels": [] },
-"audit_output_dir": "../<repo>-audits/"
+"audit_output_dir": "../<repo-name>-audits/"
 ```
 
-No existing key changes meaning; boards without these keys behave exactly as today.
+No existing key changes meaning; boards without these keys behave exactly as today. (The example config ships `api_token_ref: null` — unset until Part B wires the runner; the command appends the dated subfolder to `audit_output_dir` itself.)
 
 ## 8. Build order
 
@@ -165,3 +165,68 @@ No existing key changes meaning; boards without these keys behave exactly as tod
 ## 9. Guardrails carried forward
 
 SPEC §6 applies to every mode and every new text surface (overlay basis/items/notes, draft-lane contents, audit output, anything the app serves) — and, per §0, to every file committed to these repos. Fail closed on client exposure, always.
+
+---
+
+## Appendix A — Proposed SPEC §8 (drop-in draft, finalized when Part A ships)
+
+> ### 8. Completion overlay (opt-in)
+>
+> A board MAY carry a completion overlay. Boards without it are unaffected; everything in this section is additive and reversible.
+>
+> **Data.** One `<script type="application/json" id="progress-data">` block, placed immediately before the renderer script, which is the last element in `<body>`. Strict JSON (no comments, no trailing commas; `</` escaped inside strings). Schema, calculation rules, and error behavior: currently DESIGN v2 §2.1–2.2 — **when §8 is finalized, that text physically moves into SPEC with its cross-references rewritten** (SPEC becomes the sole source of truth; the design doc then points here). Companion edits at finalization: the SPEC preamble's "the only JS…" sentence and the §1 anatomy row gain the renderer; the propose-then-approve workflow rule lands in SPEC §7, not §8.
+>
+> **Row hook.** A row participates by carrying `data-initiative="KEY"` on its `.row` element, where `KEY` is the row's key in `initiatives`. No text matching, ever. **Exactly one row per key:** duplicate hooks → renderer console warning, only the first hooked row renders a chip, and the initiative counts once in rollups. Unmatched JSON keys → renderer console warning; `/roadmap-update` flags them in its changelog. Rows without the attribute are untouched.
+>
+> **Renderer.** One JS block directly after the JSON block. Progressive enhancement: with JS disabled the base board renders exactly as §1–7 describe. The renderer may only: append one chip element inside a hooked row's `.row-label`, maintain one drawer overlay element, and add a pinned % span to the hooked row's single epic/initiative-level bar — a hooked row with zero or multiple eligible bars gets no on-bar % (console warning), never opportunistic decoration of every bar. A `held` value renders visibly unverified: marker on chip and meter, basis suffixed "— held", and "unverified" in the accessible label. All strings enter the DOM via `textContent`; `innerHTML` is forbidden; ticket keys must match `^[A-Z][A-Z0-9]*-\d+$` before URL construction; links carry `rel="noopener"`.
+>
+> **CSS.** Overlay styles live in one marked block (`/* pv: completion overlay */`), all selectors `.pv-*`. Locked base styles are untouched.
+>
+> **Editing.** Content updates edit the JSON block only — the renderer and CSS are locked. `/roadmap-update` may rewrite `initiatives` values surgically; `/roadmap-publish` re-checks draft lanes, validates ticket-key/marker rules, warns on stale `asof`, and prints every overlay string for the human §6 review.
+>
+> **Print.** The drawer never prints; chips and pinned %s print as rendered.
+
+## Appendix B — Golden worked example (build target; values are normative)
+
+Input (placeholder client):
+
+```json
+{
+  "asof": "2026-07-17",
+  "groupOverrides": { "compliance": { "pct": 70, "basis": "external counsel estimate" } },
+  "initiatives": {
+    "PROJ-201": { "anatta": { "pct": 80, "basis": "16 of 20 stories closed", "src": "jira" }, "weight": 60,
+      "items": [
+        { "name": "Template QA", "ticket": "PROJ-201", "owner": "client", "state": "in_progress", "size": 2 },
+        { "name": "Content entry", "owner": "client", "state": "not_started", "size": 1 },
+        { "name": "Banner build", "owner": "anatta", "state": "in_progress", "size": 1 } ] },
+    "PROJ-202": { "anatta": { "pct": 45, "basis": "9 of 20 stories closed", "src": "jira", "held": true }, "weight": 60,
+      "items": [ { "name": "API specs", "owner": "client", "state": "in_progress", "size": 2, "blocked": true, "note": "pending sign-off" } ] },
+    "PROJ-203": { "anatta": { "pct": 70, "basis": "PM estimate — no epic mapping", "src": "pm" }, "weight": 50, "items": [] },
+    "PROJ-204": { "anatta": { "pct": 100, "basis": "12 of 12 stories closed", "src": "jira" }, "weight": 60, "items": [] },
+    "PROJ-205": { "shipped": "foundation shipped April" }
+  }
+}
+```
+
+Required outputs (computed per §2.2 — a conforming build MUST reproduce these exactly):
+
+| Key | client % | joint % | Chip | Notes |
+|---|---|---|---|---|
+| PROJ-201 | (2×50+1×0)/3 = 33.33 (unrounded into blend) | 0.6×80 + 0.4×33.33 = 61.33 → **61** | `61% · with both` | client open (2 non-done) AND anatta open (pct<100 + open item). Client basis: "2 items: 1 in progress · 1 not started (client-reported)" |
+| PROJ-202 | 50 | 0.6×45 + 0.4×50 = **47** | `47% · with both`, signal treatment | `held` → unverified marker on the Anatta meter, basis gains "— held"; blocked item shows its neutral note |
+| PROJ-203 | — (no client items) | = anatta.pct = **70** | `70% · with anatta` | client meter omitted; basis visibly labeled "PM estimate" |
+| PROJ-204 | — | **100** | `100%` (no "with") | neither side open |
+| PROJ-205 | — | — | muted `100%` | caption "foundation shipped April"; **excluded from lane rollups** |
+
+Lane rollups: a lane containing PROJ-201 + PROJ-205 rolls up to **61** (shipped excluded). The `compliance` lane renders **70** with basis "external counsel estimate" (override replaces computation). A lane whose only members are shipped entries shows **no rollup**.
+
+## Appendix C — Acceptance criteria per phase (the build session's verify suite)
+
+- **Phase 0:** `no-draft-on-main` reads `html_file` from config (fixture with a renamed board file still fails on a draft lane); `/roadmap-update` invoked in a connector-equipped session can actually reach Jira (frontmatter no longer blocks it). Branch protection is repo configuration, not testable by fixture — it goes on a manual deployment checklist, checked off per repo.
+- **Phase 1 (gate):** six fixtures — one per §3.2 failure class — each produces exactly the specified action and changelog line; invalid JSON aborts before any write; every changed number appears as old → new in the changelog; first-run fixture writes all values with the "first sync" banner.
+- **Phase 2 (overlay):** Appendix B reproduces exactly (values, chips, markers, rollups); additional calculation fixtures required beyond Appendix B — omitted `weight` (default 60), a true `.5` result proving half-up, client-all-done while Anatta open, Anatta-100 while client open, invalid/zero item sizes rejected, duplicate row hooks and unmatched keys handled per §8; JS disabled → the base board is DOM-equivalent to a no-overlay board (overlay-generated elements simply absent); publish gate prints all overlay strings and fires the stale-`asof` warning on a fixture dated 8 days back.
+- **Phase 3 (refresh):** against a recorded Jira fixture, writes expected `pct`/`basis`, advances sync-state only for written values, holds a >30-pt delta.
+- **Phase 4 (audit):** produces the two-section report outside the repo; refuses an `audit_output_dir` inside the repo (canonicalized); a missing source yields an explicit "source unavailable" line, not silence.
+- **Phase 5 (runner):** scheduled run writes only the review branch (no path to `main` exists in its credentials/config); failure notifies rather than retries silently.
+- **Phase 6 (app):** registry lists every board with `asof` freshness; a client-tier link cannot reach the portfolio view or another client's board.
